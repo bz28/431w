@@ -28,7 +28,7 @@ def login():
 
 @app.route('/home')
 def home():
-    return render_template('Buyer Home.html')
+    return render_template('buyer_homepage.html')
 
 def check_login(email, password):
     connection = sql.connect('database.db')
