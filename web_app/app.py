@@ -8,7 +8,7 @@ host = 'http://127.0.0.1:5000/'
 
 @app.route('/')
 def index():
-    return render_template('User Login.html')
+    return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -20,15 +20,28 @@ def login():
         hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest() 
         if email and hashed_password: 
             result = check_login(email, hashed_password) 
-            if result:
-                return redirect(url_for('home')) 
+            role = check_role(email)
+            if result and role == "Sellers":
+                return redirect(url_for('sellerhome')) 
+            elif result and role == "Buyers":
+                return redirect(url_for('buyerhome')) 
+            elif result and role == "Helpdesk":
+                return redirect(url_for('helpdeskhome')) 
             else:
                 error = 'Invalid email or password' 
-    return render_template('User Login.html', error=error)
+    return render_template('login.html', error=error)
 
-@app.route('/home')
-def home():
+@app.route('/sellerhome')
+def sellerhome():
+    return render_template('seller_homepage.html')
+
+@app.route('/buyerhome')
+def buyerhome():
     return render_template('buyer_homepage.html')
+
+@app.route('/helpdeskhome')
+def helpdeskhome():
+    return render_template('helpdesk_homepage.html')
 
 def check_login(email, password):
     connection = sql.connect('database.db')
@@ -37,6 +50,30 @@ def check_login(email, password):
     result = cursor.fetchone()
     connection.close()
     return result[0] == 1
+
+def check_role(email):
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT COUNT(*) FROM Sellers WHERE email = ?', (email,))
+    result = cursor.fetchone()
+    if (result[0] == 1):
+        connection.close()
+        return "Sellers"
+    
+    cursor.execute('SELECT COUNT(*) FROM Buyers WHERE email = ?', (email,))
+    result = cursor.fetchone()
+    if (result[0] == 1):
+        connection.close()
+        return "Buyers"
+    
+    cursor.execute('SELECT COUNT(*) FROM Helpdesk WHERE email = ?', (email,))
+    result = cursor.fetchone()
+    if (result[0] == 1):
+        connection.close()
+        return "Helpdesk"
+    
+    connection.close()
+    return "Not Found"
 
 if __name__ == "__main__":
     app.run(debug=True)
