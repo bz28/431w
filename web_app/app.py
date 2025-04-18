@@ -31,6 +31,14 @@ def login():
                 error = 'Invalid email or password' 
     return render_template('login.html', error=error)
 
+@app.route('/logout')
+def logout():
+    return redirect(url_for('index'))
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
 @app.route('/sellerhome')
 def sellerhome():
     return render_template('seller_homepage.html')
