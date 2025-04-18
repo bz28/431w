@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #d7d7d7;
+        }
+        .profile-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        .profile-info {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .profile-info p {
+            margin: 8px 0;
+        }
+        button {
+            background-color: #ffc107;
+            color: black;
+            padding: 10px;
+            border: none;
+            width: 95%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h2>User Profile</h2>
+        <div class="profile-info">
+            <p><strong>Name:</strong> {{ user.name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <!-- Add more fields as needed -->
+        </div>
+        <form action="{{ url_for('edit_profile') }}" method="get">
+            <button type="submit">Edit Profile</button>
+        </form>
+    </div>
+</body>
+</html>
