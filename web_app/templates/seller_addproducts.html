@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Product</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background-color: #00448d;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .top-right-links {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        .top-right-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .top-right-links a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00448d;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        select {
+            height: 40px;
+        }
+
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .submit-button {
+            background-color: #00448d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-button:hover {
+            background-color: #003366;
+        }
+
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 10px;
+            margin-top: 60px;
+            width: 100%;
+        }
+
+        .required {
+            color: red;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function toggleNewCategoryField() {
+            const categorySelect = document.getElementById('category');
+            const newCategoryGroup = document.getElementById('new-category-group');
+
+            if (categorySelect.value === 'new') {
+                newCategoryGroup.classList.remove('hidden');
+                document.getElementById('new_category').required = true;
+            } else {
+                newCategoryGroup.classList.add('hidden');
+                document.getElementById('new_category').required = false;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <h2>NittanyBusiness</h2>
+        <div class="top-right-links">
+            <a href="{{ url_for('profile') }}">View Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
+
+    <section>
+        <h2>Add New Product</h2>
+
+        <div class="form-container">
+            <form action="{{ url_for('add_product') }}" method="POST">
+                <div class="form-group">
+                    <label for="product_title">Product Title <span class="required">*</span></label>
+                    <input type="text" id="product_title" name="product_title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="product_name">Product Name <span class="required">*</span></label>
+                    <input type="text" id="product_name" name="product_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category <span class="required">*</span></label>
+                    <select id="category" name="category" required onchange="toggleNewCategoryField()">
+                        <option value="" disabled selected>Select a category</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Office">Office Supplies</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Food">Food & Beverage</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Books">Books</option>
+                        <option value="Sports">Sports & Outdoors</option>
+                        <option value="Beauty">Beauty & Personal Care</option>
+                        <option value="Toys">Toys & Games</option>
+                        <option value="new">New Category</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div id="new-category-group" class="form-group hidden">
+                    <label for="new_category">New Category Name <span class="required">*</span></label>
+                    <input type="text" id="new_category" name="new_category" placeholder="Enter a new category name">
+                </div>
+
+                <div class="form-group">
+                    <label for="product_description">Product Description <span class="required">*</span></label>
+                    <textarea id="product_description" name="product_description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity <span class="required">*</span></label>
+                    <input type="number" id="quantity" name="quantity" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="product_price">Price ($) <span class="required">*</span></label>
+                    <input type="number" id="product_price" name="product_price" min="0.01" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status <span class="required">*</span></label>
+                    <select id="status" name="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Draft">Draft</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <a href="{{ url_for('seller_products') }}" class="cancel-button">Cancel</a>
+                    <button type="submit" class="submit-button">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        &copy; 2025 NittanyBusiness. All rights reserved.
+    </footer>
+</body>
+
+</html>
