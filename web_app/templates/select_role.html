@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Role</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .role-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .buyer { background-color: #28a745; color: white; }
+        .seller { background-color: #ffc107; color: white; }
+        .helpdesk { background-color: #17a2b8; color: white; }
+    </style>
+</head>
+<body>
+    <div class="role-container">
+        <h2>Select Your Role</h2>
+        <form method="post" action="{{ url_for('selectrole') }}">
+            <button name="role" value="buyer" class="buyer">Buyer</button>
+            <button name="role" value="seller" class="seller">Seller</button>
+            <button name="role" value="helpdesk" class="helpdesk">Helpdesk</button>
+        </form>
+    </div>
+</body>
+</html>
