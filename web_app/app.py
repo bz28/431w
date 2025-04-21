@@ -39,6 +39,10 @@ def logout():
 def profile():
     return render_template('profile.html')
 
+@app.route('/register')
+def register():
+    return render_template('registration.html')
+
 @app.route('/sellerhome')
 def sellerhome():
     return render_template('seller_homepage.html')
