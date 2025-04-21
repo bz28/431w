@@ -22,11 +22,11 @@ def login():
             result = check_login(email, hashed_password) 
             role = check_role(email)
             if result and role == "Sellers":
-                return redirect(url_for('sellerhome')) 
+                return redirect(url_for('sellerhome')) # Sends user to seller portal if it is a seller
             elif result and role == "Buyers":
-                return redirect(url_for('buyerhome')) 
+                return redirect(url_for('buyerhome')) # Sends user to buyer portal if it is a seller
             elif result and role == "Helpdesk":
-                return redirect(url_for('helpdeskhome')) 
+                return redirect(url_for('helpdeskhome')) # Sends user to helpdesk portal if it is a seller
             else:
                 error = 'Invalid email or password' 
     return render_template('login.html', error=error)
@@ -54,7 +54,7 @@ def helpdeskhome():
 def check_login(email, password):
     connection = sql.connect('database.db')
     cursor = connection.cursor()
-    cursor.execute('SELECT COUNT(*) FROM Users WHERE email = ? AND password = ?', (email, password))
+    cursor.execute('SELECT COUNT(*) FROM Users WHERE email = ? AND password = ?', (email, password)) # Checks if entry is a valid user in the Users table
     result = cursor.fetchone()
     connection.close()
     return result[0] == 1
@@ -66,24 +66,19 @@ def check_role(email):
     result = cursor.fetchone()
     if (result[0] == 1):
         connection.close()
-        return "Sellers"
-    
+        return "Sellers" # Selects Sellers if user is in Sellers table
     cursor.execute('SELECT COUNT(*) FROM Buyers WHERE email = ?', (email,))
     result = cursor.fetchone()
     if (result[0] == 1):
         connection.close()
-        return "Buyers"
-    
+        return "Buyers" # Selects Buyers if user is in Buyers table
     cursor.execute('SELECT COUNT(*) FROM Helpdesk WHERE email = ?', (email,))
     result = cursor.fetchone()
     if (result[0] == 1):
         connection.close()
-        return "Helpdesk"
-    
+        return "Helpdesk" # Selects Helpdesk if user is in Helpdesk table
     connection.close()
-    return "Not Found"
+    return "Not Found" # If the user's role cannot be found send error
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-

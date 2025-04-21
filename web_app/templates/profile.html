@@ -48,7 +48,6 @@
         <div class="profile-info">
             <p><strong>Name:</strong> {{ user.name }}</p>
             <p><strong>Email:</strong> {{ user.email }}</p>
-            <!-- Add more fields as needed -->
         </div>
         <form action="{{ url_for('edit_profile') }}" method="get">
             <button type="submit">Edit Profile</button>
