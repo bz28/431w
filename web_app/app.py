@@ -39,18 +39,65 @@ def logout():
 def profile():
     return render_template('profile.html')
 
-@app.route('/selectrole')
+@app.route('/selectrole', methods=['GET', 'POST'])
 def selectrole():
+    if request.method == 'POST':
+        # Example: redirect user based on role selection
+        role = request.form.get('role')  # Make sure your form has `name="role"`
+        if role == 'buyer':
+            return redirect(url_for('buyerregistration'))
+        elif role == 'seller':
+            return redirect(url_for('sellerregistration'))
+        elif role == 'helpdesk':
+            return redirect(url_for('helpdeskregistration'))
     return render_template('select_role.html')
 
 @app.route('/sellerregistration')
 def sellerregistration():
     return render_template('seller_registration.html')
 
-@app.route('/buyerregistration')
+@app.route('/buyerregistration', methods=['GET', 'POST'])
 def buyerregistration():
-    return render_template('buyer_registration.html')
+    if request.method == 'POST':
+        # Get form data
+        full_name = request.form['FullName']
+        email = request.form['Email']
+        password = request.form['Password']
+        confirm_password = request.form['ConfirmPassword']
+        business_name = request.form['BusinessName']
+        street_name = request.form['StreetName']
+        street_num = request.form['StreetNum']
+        city = request.form['City']
+        state = request.form['State']
+        zipcode = request.form['Zipcode']
 
+        # Basic validation (e.g., password match)
+        if password != confirm_password:
+            return "Passwords do not match!"
+
+        # Hash the password
+        hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+        # Save to database
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+
+        # Insert into Users table (if applicable)
+        cursor.execute('INSERT INTO Users (email, password) VALUES (?, ?)', (email, hashed_password))
+
+        # Insert into Buyers table
+        cursor.execute('''INSERT INTO Buyers 
+                          (email, full_name, business_name, street_name, street_num, city, state, zipcode)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                       (email, full_name, business_name, street_name, street_num, city, state, zipcode))
+
+        connection.commit()
+        connection.close()
+
+        # Redirect to login page after successful registration
+        return redirect(url_for('login'))
+
+    return render_template('buyer_registration.html')
 @app.route('/helpdeskregistration')
 def helpdeskregistration():
     return render_template('helpdesk_registration.html')
