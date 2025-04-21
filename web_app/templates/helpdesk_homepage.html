@@ -17,6 +17,22 @@
             color: white;
             padding: 15px;
             font-size: 24px;
+            position: relative;
+        }
+        .top-right-links {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+        .top-right-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+        .top-right-links a:hover {
+            text-decoration: underline;
         }
         section {
             padding: 20px;
@@ -47,28 +63,26 @@
         button:hover {
             background-color: #003366;
         }
-        
     </style>
 </head>
 <body>
     <header>
         <h2>NittanyBusiness Helpdesk</h2>
+        <div class="top-right-links">
+            <a href="{{ url_for('profile') }}">View Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
     </header>
     
     <section>
-        
         <hr width="80%">
-        
         <h3>Select a task:</h3>
-        
         <div class="button-container">
             <button type="button" onclick="location.href='pending-requests.html'">View Pending Requests</button>
             <button type="button" onclick="location.href='user-management.html'">User Management</button>
             <button type="button" onclick="location.href='system-admin.html'">System Administration</button>
         </div>
-        
         <hr width="80%">
     </section>
-    
 </body>
 </html>
