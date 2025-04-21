@@ -27,18 +27,21 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .buyer { background-color: #28a745; color: white; }
-        .seller { background-color: #ffc107; color: white; }
-        .helpdesk { background-color: #17a2b8; color: white; }
+        .buyer { background-color: #007bff; color: white; }
+        .seller { background-color: #007bff; color: white; }
+        .helpdesk { background-color: #007bff; color: white; }
+        button:hover {
+            background-color: #0069d9;
+        }
     </style>
 </head>
 <body>
     <div class="role-container">
         <h2>Select Your Role</h2>
         <form method="post" action="{{ url_for('selectrole') }}">
-            <button name="role" value="buyer" class="buyer">Buyer</button>
-            <button name="role" value="seller" class="seller">Seller</button>
-            <button name="role" value="helpdesk" class="helpdesk">Helpdesk</button>
+            <button name="role" value="buyer" class="buyer"><a href="{{ url_for('buyerregistration') }}"></a>Buyer</button>
+            <button name="role" value="seller" class="seller"><a href="{{ url_for('sellerregistration') }}"></a>Seller</button>
+            <button name="role" value="helpdesk" class="helpdesk"><a href="{{ url_for('helpdeskregistration') }}"></a>Helpdesk</button>
         </form>
     </div>
 </body>

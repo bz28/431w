@@ -43,6 +43,18 @@ def profile():
 def selectrole():
     return render_template('select_role.html')
 
+@app.route('/sellerregistration')
+def sellerregistration():
+    return render_template('seller_registration.html')
+
+@app.route('/buyerregistration')
+def buyerregistration():
+    return render_template('buyer_registration.html')
+
+@app.route('/helpdeskregistration')
+def helpdeskregistration():
+    return render_template('helpdesk_registration.html')
+
 @app.route('/sellerhome')
 def sellerhome():
     return render_template('seller_homepage.html')
