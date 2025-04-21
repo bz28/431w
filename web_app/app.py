@@ -31,7 +31,7 @@ def login():
                 error = 'Invalid email or password' 
     return render_template('login.html', error=error)
 
-@app.route('/logout')
+@app.route('/logout') #ijfioagsdngo
 def logout():
     return redirect(url_for('index'))
 
