@@ -41,8 +41,7 @@ def profile():
 
 @app.route('/selectrole', methods=['GET', 'POST'])
 def selectrole():
-    if request.method == 'POST':
-        # Example: redirect user based on role selection
+    if request.method == 'POST': # redirect user based on role selection
         role = request.form.get('role')  # Make sure your form has `name="role"`
         if role == 'buyer':
             return redirect(url_for('buyerregistration'))
@@ -71,33 +70,26 @@ def buyerregistration():
         state = request.form['State']
         zipcode = request.form['Zipcode']
 
-        # Basic validation (e.g., password match)
-        if password != confirm_password:
+        buyer_address_id = 1 # We Need to generate a id that is not in use
+        address_id = buyer_address_id
+        
+        if password != confirm_password: # Basic validation (e.g., password match)
             return "Passwords do not match!"
-
-        # Hash the password
-        hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest() # Hash the password
 
         # Save to database
         connection = sql.connect('database.db')
         cursor = connection.cursor()
-
-        # Insert into Users table (if applicable)
-        cursor.execute('INSERT INTO Users (email, password) VALUES (?, ?)', (email, hashed_password))
-
-        # Insert into Buyers table
-        cursor.execute('''INSERT INTO Buyers 
-                          (email, full_name, business_name, street_name, street_num, city, state, zipcode)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                       (email, full_name, business_name, street_name, street_num, city, state, zipcode))
-
+        cursor.execute('INSERT INTO Users (email, password) VALUES (?, ?)', (email, hashed_password)) # Insert into Users table
+        cursor.execute('INSERT INTO Buyers (email, business_name, buyer_address_id) VALUES (?, ?, ?)', (email, business_name, buyer_address_id)) # Insert into Buyers table
+        cursor.execute('INSERT INTO Address (address_id, zipcode, street_num, street_name) VALUES (?, ?, ?, ?)', (address_id, zipcode, street_num, street_name)) # Insert into Address table
+        cursor.execute('INSERT INTO Zipcode_Info (zipcode, city, state) VALUES (?, ?, ?)', (zipcode, city, state)) # Insert into Zipcode table
         connection.commit()
         connection.close()
-
-        # Redirect to login page after successful registration
-        return redirect(url_for('login'))
+        return redirect(url_for('login')) # Redirect to login page after successful registration
 
     return render_template('buyer_registration.html')
+
 @app.route('/helpdeskregistration')
 def helpdeskregistration():
     return render_template('helpdesk_registration.html')
