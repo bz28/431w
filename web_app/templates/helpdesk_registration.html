@@ -45,11 +45,12 @@
 <body>
     <div class="register-container">
         <h2>Create Account</h2>
-        <form action="{{ url_for('register') }}" method="post">
+        <form action="{{ url_for('helpdeskregistration') }}" method="post">
             <input type="text" name="FullName" placeholder="Full Name" required>
             <input type="email" name="Email" placeholder="Email" required>
             <input type="password" name="Password" placeholder="Password" required>
             <input type="password" name="ConfirmPassword" placeholder="Confirm Password" required>
+            <input type="position" name="Position" placeholder="Position" required>
             <button type="submit">Register</button>
         </form>
         <a href="{{ url_for('login') }}" style="display: block; margin-top: 15px; color: #007bff; text-decoration: none;">Back to Login</a>
