@@ -48,16 +48,14 @@
         <form action="{{ url_for('sellerregistration') }}" method="post">
             <input type="email" name="Email" placeholder="Email" required>
             <input type="password" name="Password" placeholder="Password" required>
-            <input type="password" name="ConfirmPassword" placeholder="Confirm Password" required>
-
             <input type="street_name" name="StreetName" placeholder="Street Name" required>
             <input type="street_num" name="StreetNum" placeholder="Street Number" required>
             <input type="city" name="City" placeholder="City" required>
             <input type="state" name="State" placeholder="State" required>
             <input type="zipcode" name="Zipcode" placeholder="Zipcode" required>
-
             <input type="business_name" name="BusinessName" placeholder="Business Name" required>
             <input type="bank_routing_number" name="BankRoutingNumber" placeholder="Bank Routing Number" required>
+            <input type="bank_account_number" name="BankAccountNumber" placeholder="Bank Account Number" required>
             <input type="balance" name="Balance" placeholder="Balance" required>
             <button type="submit">Register</button>
         </form>

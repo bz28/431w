@@ -53,8 +53,35 @@ def selectrole():
             return redirect(url_for('helpdeskregistration'))
     return render_template('select_role.html')
 
-@app.route('/sellerregistration')
+@app.route('/sellerregistration', methods=['GET', 'POST'])
 def sellerregistration():
+    if request.method == 'POST':
+        # Get form data
+        email = request.form['Email']
+        password = request.form['Password']
+        street_name = request.form['StreetName']
+        street_num = request.form['StreetNum']
+        city = request.form['City']
+        state = request.form['State']
+        zipcode = request.form['Zipcode']
+        business_name = request.form['BusinessName']
+        bank_routing_number = request.form['BankRoutingNumber']
+        bank_account_number = request.form['BankAccountNumber']
+        balance = request.form['Balance']
+        # Connect to database
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+        business_address_id = generate_unique_id(cursor, "Sellers", "business_address_id", 32) # Generates a id for address that is not being used
+        address_id = business_address_id # ensures address and seller address entries are identical
+        hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest() # Hash the password
+        # Save to database
+        cursor.execute('INSERT INTO Users (email, password) VALUES (?, ?)', (email, hashed_password)) # Insert into Users table
+        cursor.execute('INSERT INTO Sellers (email, business_name, business_address_id, bank_routing_number, bank_account_number, balance) VALUES (?, ?, ?, ?, ?, ?)', (email, business_name, business_address_id, bank_routing_number, bank_account_number, balance)) # Insert into Sellers table
+        cursor.execute('INSERT INTO Address (address_id, zipcode, street_num, street_name) VALUES (?, ?, ?, ?)', (address_id, zipcode, street_num, street_name)) # Insert into Address table
+        cursor.execute('INSERT INTO Zipcode_Info (zipcode, city, state) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM Zipcode_Info WHERE zipcode = ?)', (zipcode, city, state, zipcode)) # Insert into Zipcode table
+        connection.commit()
+        connection.close()
+        return redirect(url_for('login')) # Redirect to login page after successful registration
     return render_template('seller_registration.html')
 
 @app.route('/buyerregistration', methods=['GET', 'POST'])
@@ -69,7 +96,6 @@ def buyerregistration():
         city = request.form['City']
         state = request.form['State']
         zipcode = request.form['Zipcode']
-        
         # Connect to database
         connection = sql.connect('database.db')
         cursor = connection.cursor()
