@@ -70,19 +70,17 @@ def buyerregistration():
         state = request.form['State']
         zipcode = request.form['Zipcode']
         
+        # Connect to database
         connection = sql.connect('database.db')
         cursor = connection.cursor()
-
         buyer_address_id = generate_unique_id(cursor, "Buyers", "buyer_address_id", 32) # Generates a id for address that is not being used
         address_id = buyer_address_id # ensures address and buyer address entries are identical
-        
         hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest() # Hash the password
-
         # Save to database
         cursor.execute('INSERT INTO Users (email, password) VALUES (?, ?)', (email, hashed_password)) # Insert into Users table
         cursor.execute('INSERT INTO Buyers (email, business_name, buyer_address_id) VALUES (?, ?, ?)', (email, business_name, buyer_address_id)) # Insert into Buyers table
         cursor.execute('INSERT INTO Address (address_id, zipcode, street_num, street_name) VALUES (?, ?, ?, ?)', (address_id, zipcode, street_num, street_name)) # Insert into Address table
-        cursor.execute('INSERT INTO Zipcode_Info (zipcode, city, state) VALUES (?, ?, ?)', (zipcode, city, state)) # Insert into Zipcode table
+        cursor.execute('INSERT INTO Zipcode_Info (zipcode, city, state) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM Zipcode_Info WHERE zipcode = ?)', (zipcode, city, state, zipcode)) # Insert into Zipcode table
         connection.commit()
         connection.close()
         return redirect(url_for('login')) # Redirect to login page after successful registration
