@@ -76,12 +76,7 @@
     
     <section>
         <hr width="80%">
-        <h3>Select a task:</h3>
-        <div class="button-container">
-            <button type="button" onclick="location.href='pending-requests.html'">View Pending Requests</button>
-            <button type="button" onclick="location.href='user-management.html'">User Management</button>
-            <button type="button" onclick="location.href='system-admin.html'">System Administration</button>
-        </div>
+        <a href="{{ url_for('requests') }}" style="display: block; margin-top: 15px; color: #007bff; text-decoration: none;">View Requests</a>
         <hr width="80%">
     </section>
 </body>

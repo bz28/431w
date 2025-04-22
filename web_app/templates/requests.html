@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
+        header {
+            background-color: #00448d;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            position: relative;
+        }
+        .top-right-links {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+        .top-right-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+        .top-right-links a:hover {
+            text-decoration: underline;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1em;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.75em;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>NittanyBusiness Helpdesk</h2>
+        <div class="top-right-links">
+            <a href="{{ url_for('profile') }}">View Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
+    <h1>All Requests</h1>
+    <table>
+        <thead>
+            <tr>
+                {% for column in columns %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in requests %}
+            <tr>
+                {% for value in row %}
+                <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -129,6 +129,16 @@ def buyerhome():
 def helpdeskhome():
     return render_template('helpdesk_homepage.html')
 
+@app.route("/requests")
+def requests():
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM Requests")
+    requests = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    connection.close()
+    return render_template("requests.html", requests=requests, columns=columns)
+
 def generate_unique_id(cursor, table, column, length):
     while True:
         random_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
