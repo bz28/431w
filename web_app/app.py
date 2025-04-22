@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for 
 import sqlite3 as sql
 import hashlib
+import random
+import string
 
 app = Flask(__name__)
 
@@ -59,27 +61,24 @@ def sellerregistration():
 def buyerregistration():
     if request.method == 'POST':
         # Get form data
-        full_name = request.form['FullName']
         email = request.form['Email']
         password = request.form['Password']
-        confirm_password = request.form['ConfirmPassword']
         business_name = request.form['BusinessName']
         street_name = request.form['StreetName']
         street_num = request.form['StreetNum']
         city = request.form['City']
         state = request.form['State']
         zipcode = request.form['Zipcode']
-
-        buyer_address_id = 1 # We Need to generate a id that is not in use
-        address_id = buyer_address_id
         
-        if password != confirm_password: # Basic validation (e.g., password match)
-            return "Passwords do not match!"
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+
+        buyer_address_id = generate_unique_id(cursor, "Buyers", "buyer_address_id", 32) # Generates a id for address that is not being used
+        address_id = buyer_address_id # ensures address and buyer address entries are identical
+        
         hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest() # Hash the password
 
         # Save to database
-        connection = sql.connect('database.db')
-        cursor = connection.cursor()
         cursor.execute('INSERT INTO Users (email, password) VALUES (?, ?)', (email, hashed_password)) # Insert into Users table
         cursor.execute('INSERT INTO Buyers (email, business_name, buyer_address_id) VALUES (?, ?, ?)', (email, business_name, buyer_address_id)) # Insert into Buyers table
         cursor.execute('INSERT INTO Address (address_id, zipcode, street_num, street_name) VALUES (?, ?, ?, ?)', (address_id, zipcode, street_num, street_name)) # Insert into Address table
@@ -105,6 +104,13 @@ def buyerhome():
 @app.route('/helpdeskhome')
 def helpdeskhome():
     return render_template('helpdesk_homepage.html')
+
+def generate_unique_id(cursor, table, column, length):
+    while True:
+        random_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
+        cursor.execute(f"SELECT 1 FROM {table} WHERE {column} = ?", (random_id,))
+        if not cursor.fetchone():
+            return random_id
 
 def check_login(email, password):
     connection = sql.connect('database.db')
