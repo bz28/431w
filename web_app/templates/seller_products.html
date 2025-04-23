@@ -44,16 +44,6 @@
             padding: 20px;
         }
 
-        .search-bar {
-            margin: 20px auto;
-            width: 80%;
-        }
-
-        .search-bar input[type="text"] {
-            width: 60%;
-            padding: 10px;
-            font-size: 16px;
-        }
 
         .category-menu {
             margin: 20px auto;
@@ -101,10 +91,26 @@
 
         .product-card p {
             font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .action-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            margin: 5px 5px 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
         }
 
         .links-section {
-            margin-top: 40px;
+            margin: 20px 0;
         }
 
         .links-section a {
@@ -115,36 +121,20 @@
             font-weight: bold;
         }
 
-        .action-button {
-            background-color: #00448d;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
+        .back-button,
+        .add-button {
             display: inline-block;
-            margin: 5px 0;
-        }
-
-        .action-button:hover {
-            background-color: #003366;
-        }
-
-        .back-button {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white !important;
             text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
+            border-radius: 4px;
+            margin: 10px;
         }
 
-        .back-button:hover {
-            background-color: #5a6268;
+        .back-button:hover,
+        .add-button:hover {
+            background-color: #0056b3;
         }
 
         footer {
@@ -176,75 +166,36 @@
     <section>
         <h2>Manage Your Products</h2>
         <div class="links-section">
-            <a href="#" class="back-button">Back to Dashboard</a>
-            <a href="#">➕ Add New Product</a>
+            <a href="{{ url_for('sellerhome') }}" class="back-button">Back to Dashboard</a>
+            <a href="{{ url_for('add_product') }}" class="add-button">➕ Add New Product</a>
         </div>
 
 
+        <div class="category-menu">
+            <button onclick="filterByCategory('All')">All</button>
+            <button onclick="filterByCategory('Electronics')">Electronics</button>
+            <button onclick="filterByCategory('Office')">Office Supplies</button>
+            <button onclick="filterByCategory('Furniture')">Furniture</button>
+            <button onclick="filterByCategory('Food')">Food & Beverage</button>
+        </div>
 
         <div class="product-listing">
-            <!-- Electronics -->
-            <div class="product-card" data-category="Electronics">
-                <h3>Wireless Mouse</h3>
-                <p>Price: $25.99</p>
-                <p>Stock: 15 units</p>
-                <p>Rating: ★★★★☆</p>
+            {% if products %}
+            {% for product in products %}
+            <div class="product-card" data-category="{{ product[2] }}">
+                <h3>{{ product[3] }}</h3>
+                <p>Price: ${{ product[7] }}</p>
+                <p>Stock: {{ product[6] }} units</p>
+                <p>Status: {{ product[8] }}</p>
                 <button class="action-button">Reviews</button>
                 <button class="action-button">Edit</button>
                 <button class="action-button">Delete</button>
             </div>
-            <div class="product-card" data-category="Electronics">
-                <h3>Bluetooth Speaker</h3>
-                <p>Price: $45.00</p>
-                <p>Stock: 8 units</p>
-                <p>Rating: ★★★★★</p>
-                <button class="action-button">Reviews</button>
-                <button class="action-button">Edit</button>
-                <button class="action-button">Delete</button>
-            </div>
-
-            <!-- Office -->
-            <div class="product-card" data-category="Office">
-                <h3>Desk Organizer</h3>
-                <p>Price: $12.49</p>
-                <p>Stock: 22 units</p>
-                <p>Rating: ★★★★☆</p>
-                <button class="action-button">Reviews</button>
-                <button class="action-button">Edit</button>
-                <button class="action-button">Delete</button>
-            </div>
-            <div class="product-card" data-category="Office">
-                <h3>Pack of Pens</h3>
-                <p>Price: $4.99</p>
-                <p>Stock: 50 units</p>
-                <p>Rating: ★★★★☆</p>
-                <button class="action-button">Reviews</button>
-                <button class="action-button">Edit</button>
-                <button class="action-button">Delete</button>
-            </div>
-
-            <!-- Furniture -->
-            <div class="product-card" data-category="Furniture">
-                <h3>Ergonomic Chair</h3>
-                <p>Price: $129.99</p>
-                <p>Stock: 5 units</p>
-                <p>Rating: ★★★☆☆</p>
-                <button class="action-button">Reviews</button>
-                <button class="action-button">Edit</button>
-                <button class="action-button">Delete</button>
-            </div>
-            <div class="product-card" data-category="Furniture">
-                <h3>Standing Desk</h3>
-                <p>Price: $299.99</p>
-                <p>Stock: 3 units</p>
-                <p>Rating: ★★★★★</p>
-                <button class="action-button">Reviews</button>
-                <button class="action-button">Edit</button>
-                <button class="action-button">Delete</button>
-            </div>
+            {% endfor %}
+            {% else %}
+            <p>You don't have any products yet. Click "Add New Product" to get started.</p>
+            {% endif %}
         </div>
-
-
     </section>
 
     <footer>
