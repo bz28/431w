@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for 
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3 as sql
 import hashlib
 import random
@@ -7,6 +7,8 @@ import string
 app = Flask(__name__)
 
 host = 'http://127.0.0.1:5000/'
+
+app.secret_key = '123456789'
 
 @app.route('/')
 def index():
@@ -24,26 +26,48 @@ def login():
             result = check_login(email, hashed_password) 
             role = check_role(email)
             if result and role == "Sellers":
+                session['email'] = email
                 return redirect(url_for('sellerhome')) # Sends user to seller portal if it is a seller
             elif result and role == "Buyers":
+                session['email'] = email
                 return redirect(url_for('buyerhome')) # Sends user to buyer portal if it is a seller
             elif result and role == "Helpdesk":
+                session['email'] = email
                 return redirect(url_for('helpdeskhome')) # Sends user to helpdesk portal if it is a seller
             else:
                 error = 'Invalid email or password' 
     return render_template('login.html', error=error)
 
-@app.route('/logout') #ijfioagsdngo
+@app.route('/logout')
 def logout():
+    session.clear()
     return redirect(url_for('index'))
+
+@app.route('/editprofile', methods=['GET', 'POST'])
+def editprofile():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        email = session['email']
+        new_password = request.form['NewPassword']
+        hashed_password = hashlib.sha256(new_password.encode('utf-8')).hexdigest() # Hash the new password
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute('UPDATE Users SET password = ? WHERE email = ?', (hashed_password, email)) # Update the password in the database
+        connection.commit()
+        connection.close()
+        return redirect(url_for('profile'))
+    return render_template('edit_profile.html', email=session['email'])
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html')
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    return render_template('profile.html', email=session['email'])
 
 @app.route('/selectrole', methods=['GET', 'POST'])
 def selectrole():
-    if request.method == 'POST': # redirect user based on role selection
+    if request.method == 'POST': # Redirect user based on role selection
         role = request.form.get('role')  # Make sure your form has `name="role"`
         if role == 'buyer':
             return redirect(url_for('buyerregistration'))
