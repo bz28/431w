@@ -145,6 +145,10 @@ def helpdeskregistration():
 def sellerhome():
     return render_template('seller_homepage.html')
 
+@app.route('/seller_orders')
+def seller_orders():
+    return render_template('seller_orders.html')
+
 @app.route('/buyerhome')
 def buyerhome():
     return render_template('buyer_homepage.html')
@@ -199,5 +203,79 @@ def check_role(email):
     connection.close()
     return "Not Found" # If the user's role cannot be found send error
 
+
+
+
+
+@app.route('/seller_products')
+def seller_products():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    email = session['email']
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    
+    # Assuming your table is called Product_listings
+    cursor.execute('SELECT * FROM Product_Listings WHERE seller_email = ?', (email,))
+    products = cursor.fetchall()
+    
+    # Get column names for reference
+    cursor.execute('PRAGMA table_info(Product_listings)')
+    columns = [column[1] for column in cursor.fetchall()]
+    
+    connection.close()
+    return render_template('seller_products.html', products=products, columns=columns)
+
+@app.route('/add_product', methods=['GET', 'POST'])
+def add_product():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        # Get the seller's email from the session
+        seller_email = session['email']
+        
+        # Get form data
+        product_title = request.form['product_title']
+        product_name = request.form['product_name']
+        
+        # Handle category (check if it's a new category)
+        if request.form['category'] == 'new':
+            category = request.form['new_category']
+        else:
+            category = request.form['category']
+            
+        product_description = request.form['product_description']
+        quantity = request.form['quantity']
+        product_price = request.form['product_price']
+        status = request.form['status']
+        
+        # Connect to database
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+        
+        # Generate a unique listing ID
+        listing_id = generate_unique_id(cursor, "Product_listings", "Listing_ID", 10)
+        
+        # Insert into Product_listings table
+        cursor.execute('''
+            INSERT INTO Product_listings (
+                Listing_ID, Seller_Email, Category, Product_Title, 
+                Product_Name, Product_Description, Quantity, Product_Price, Status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            listing_id, seller_email, category, product_title,
+            product_name, product_description, quantity, product_price, status
+        ))
+        
+        connection.commit()
+        connection.close()
+        
+        # Redirect to the seller products page
+        return redirect(url_for('seller_products'))
+    
+    # If it's a GET request, just render the form
+    return render_template('seller_addproducts.html')
 if __name__ == "__main__":
     app.run(debug=True)
