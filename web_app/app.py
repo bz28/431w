@@ -147,10 +147,22 @@ def sellerhome():
 
 @app.route('/buyerhome')
 def buyerhome():
-    return render_template('buyer_homepage.html')
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
+    root_categories = cursor.fetchall()
+    cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
+    subcategories = cursor.fetchall()
+    cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
+    items = cursor.fetchall()
+    connection.close()
+    return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, items = items)
 
 @app.route('/helpdeskhome')
 def helpdeskhome():
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute("")
     return render_template('helpdesk_homepage.html')
 
 @app.route("/requests")
@@ -162,6 +174,7 @@ def requests():
     columns = [description[0] for description in cursor.description]
     connection.close()
     return render_template("requests.html", requests=requests, columns=columns)
+
 
 def generate_unique_id(cursor, table, column, length):
     while True:
