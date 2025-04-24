@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Reviews</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background-color: #00448d;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .top-right-links {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        .top-right-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .top-right-links a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .product-details {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1em;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.75em;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 10px;
+            margin-top: 60px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>NittanyBusiness</h2>
+        <div class="top-right-links">
+            <a href="{{ url_for('profile') }}">View Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
+
+    <section>
+        <h2>Reviews for {{ product['name'] }}</h2>
+
+        <div class="product-details">
+            <p><strong>Category:</strong> {{ product['category'] }}</p>
+            <p><strong>Price:</strong> ${{ product['price'] }}</p>
+            <p><strong>Description:</strong> {{ product['description'] }}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    {% for col in columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    {% for field in review %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="links-section" style="margin-top: 20px;">
+            <a href="{{ url_for('buyer_home') }}">Back to Home</a>
+        </div>
+    </section>
+</body>
+</html>

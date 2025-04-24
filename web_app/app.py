@@ -176,7 +176,8 @@ def helpdeskhome():
 def requests():
     connection = sql.connect('database.db')
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM Requests")
+    email = session['email']
+    cursor.execute("SELECT request_id, sender_email, request_type, request_desc FROM Requests WHERE helpdesk_staff_email = ?", (email,))
     requests = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     connection.close()
