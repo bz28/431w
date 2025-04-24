@@ -152,6 +152,8 @@ def sellerhome():
 @app.route('/buyerhome')
 def buyerhome():
     query = request.args.get('query', '').strip()
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
 
     connection = sql.connect('database.db')
     cursor = connection.cursor()
@@ -164,19 +166,22 @@ def buyerhome():
     cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
     itemscategory = cursor.fetchall()
 
-    # Build query to search products by name
-    if query:
-        search_term = f'%{query}%'
-        cursor.execute('''
-            SELECT * FROM Product_Listings
-            WHERE Product_Name LIKE ?
-            OR Product_Description LIKE ?
-            OR Category LIKE ?
-            OR Seller_Email LIKE ?
-        ''', (search_term, search_term, search_term, search_term))
-    else:
-        cursor.execute("SELECT * FROM Product_Listings")
+    # Base query
+    sql_query = '''
+        SELECT * FROM Product_Listings
+        WHERE (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
+    '''
+    params = [f'%{query}%'] * 4 if query else ['%%'] * 4
 
+    # Cast text price to REAL after removing '$'
+    if min_price:
+        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) >= ?"
+        params.append(min_price)
+    if max_price:
+        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) <= ?"
+        params.append(max_price)
+
+    cursor.execute(sql_query, params)
     products = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
 
@@ -190,22 +195,7 @@ def buyerhome():
         products=products,
         columns=columns
     )
-    '''
-    connection = sql.connect('database.db')
-    cursor = connection.cursor()
-    cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
-    root_categories = cursor.fetchall()
-    cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
-    subcategories = cursor.fetchall()
-    cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
-    itemscategory = cursor.fetchall()
-    cursor.execute("SELECT * FROM Product_Listings")
-    products = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]   
-    connection.close()
-    return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, itemscategory = itemscategory, products = products, columns = columns)
 
-    '''
 from datetime import datetime
 @app.route('/buy_now', methods=['POST'])
 def buy_now():
