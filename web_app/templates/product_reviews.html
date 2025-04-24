@@ -74,6 +74,20 @@
             margin-top: 60px;
             width: 100%;
         }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 500px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -114,7 +128,12 @@
         </table>
 
         <div class="links-section" style="margin-top: 20px;">
-            <a href="{{ url_for('buyer_home') }}">Back to Home</a>
+            <a href="{{ url_for('buynow') }}">
+                <button type="submit">Buy Now</button>
+            </a>
+            <a href="{{ url_for('buyer_home') }}">
+                <button type="submit">Back To Home</button>
+            </a>
         </div>
     </section>
 </body>
