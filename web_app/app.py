@@ -203,7 +203,7 @@ def buyerhome():
 @app.route('/buy_now', methods=['POST'])
 def buy_now():
     listing_id = request.form['listing_id']
-    return render_template('buyer_orders.html')
+    return render_template('buyer_placeorder.html')
 
 @app.route('/helpdeskhome')
 def helpdeskhome():
