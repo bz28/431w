@@ -151,6 +151,39 @@ def sellerhome():
 
 @app.route('/buyerhome')
 def buyerhome():
+    query = request.args.get('query', '').strip()
+
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+
+    # Get categories
+    cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
+    root_categories = cursor.fetchall()
+    cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
+    subcategories = cursor.fetchall()
+    cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
+    itemscategory = cursor.fetchall()
+
+    # Build query to search products by name
+    if query:
+        cursor.execute("SELECT * FROM Product_Listings WHERE product_name LIKE ?", (f'%{query}%',))
+    else:
+        cursor.execute("SELECT * FROM Product_Listings")
+
+    products = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+
+    connection.close()
+
+    return render_template(
+        'buyer_homepage.html',
+        root_categories=root_categories,
+        subcategories=subcategories,
+        itemscategory=itemscategory,
+        products=products,
+        columns=columns
+    )
+    '''
     connection = sql.connect('database.db')
     cursor = connection.cursor()
     cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
@@ -165,7 +198,8 @@ def buyerhome():
     connection.close()
     return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, itemscategory = itemscategory, products = products, columns = columns)
 
-
+    '''
+    
 @app.route('/buy_now', methods=['POST'])
 def buy_now():
     listing_id = request.form['listing_id']

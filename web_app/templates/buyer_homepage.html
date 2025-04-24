@@ -144,9 +144,9 @@
     <section>
         <h2>Welcome to NittanyBusiness!</h2>
 
-        <form action="search.php" method="GET">
+        <form action="{{ url_for('buyerhome') }}" method="GET">
             <div class="bar">
-                <input type="text" name="query" id="searchQuery" placeholder="Search products by name or category...">
+                <input type="text" name="query" id="searchQuery" placeholder="Search products by name...">
             </div>
             <div class="bar">
                 <input type="number" name="min_price" id="minPrice" placeholder="Min Price" min="0">
