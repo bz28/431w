@@ -144,12 +144,12 @@ def buyerregistration():
 def helpdeskregistration():
     return render_template('helpdesk_registration.html')
 
-@app.route('/sellerhome')
+@app.route('/sellerhome', methods=['GET', 'POST'])
 def sellerhome():
     return render_template('seller_homepage.html')
 
 
-@app.route('/buyerhome')
+@app.route('/buyerhome', methods=['GET', 'POST'])
 def buyerhome():
     query = request.args.get('query', '').strip()
     min_price = request.args.get('min_price')
@@ -186,6 +186,10 @@ def buyerhome():
     columns = [description[0] for description in cursor.description]
 
     connection.close()
+    
+    if request.method == 'POST': # Redirect user based on role selection
+        session['listing_id'] = request.form.get('listing_id')
+        return redirect(url_for('productreviews'))
 
     return render_template(
         'buyer_homepage.html',
@@ -197,7 +201,7 @@ def buyerhome():
     )
 
 from datetime import datetime
-@app.route('/buy_now', methods=['POST'])
+@app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
     if 'email' not in session:
         return redirect(url_for('login'))
@@ -230,51 +234,15 @@ def buy_now():
         connection.commit()
 
     connection.close()
-    return render_template('buyer_placeorder.html')
+    return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
 
-@app.route('/sellerreviews', methods=['GET'])
+@app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():
     return render_template('seller_reviews.html')
 
-@app.route('/productreviews', methods=['GET'])
+@app.route('/productreviews', methods=['GET', 'POST'])
 def productreviews():
-    connection = sql.connect('database.db')
-    connection.row_factory = sql.Row
-    cursor = connection.cursor()
-
-    listing_id = session['listing_id']
-    cursor.execute('SELECT Seller_Email, Product_Title, Product_Name, Product_Description, Quantity, Product_Price FROM Products WHERE listing_id = ?', (listing_id,))
-    product_row = cursor.fetchone()
-
-    if product_row:
-        product = {
-            'name': product_row['Product_Name'],
-            'category': product_row['Product_Title'],
-            'price': product_row['Product_Price'],
-            'description': product_row['Product_Description']
-        }
-    else:
-        product = {
-            'name': 'Unknown',
-            'category': 'N/A',
-            'price': 0,
-            'description': 'No description available.'
-        }
-
-    cursor.execute('''
-        SELECT o.owner_email AS reviewer, r.rate, r.review_desc
-        FROM Reviews r
-        JOIN Orders o ON r.order_id = o.rowid
-        WHERE r.order_id IN (
-            SELECT order_id FROM Orders WHERE listing_id = ?
-        )
-    ''', (listing_id,))
-    review_rows = cursor.fetchall()
-
-    reviews = [[row['reviewer'], row['rate'], row['review_desc']] for row in review_rows]
-    columns = ['Reviewer', 'Rating', 'Comment']
-
-    return render_template('product_reviews.html', product=product, columns=columns, reviews=reviews)
+    return render_template('product_reviews.html')
 
 @app.route('/orders')
 def view_orders():

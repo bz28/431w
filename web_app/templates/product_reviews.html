@@ -100,38 +100,18 @@
     </header>
 
     <section>
-        <h2>Reviews for {{ product['name'] }}</h2>
+        <h2>Reviews</h2>
 
         <div class="product-details">
-            <p><strong>Category:</strong> {{ product['category'] }}</p>
-            <p><strong>Price:</strong> ${{ product['price'] }}</p>
-            <p><strong>Description:</strong> {{ product['description'] }}</p>
+            <p><strong>Category:</strong></p>
+
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    {% for col in columns %}
-                    <th>{{ col }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for review in reviews %}
-                <tr>
-                    {% for field in review %}
-                    <td>{{ field }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
         <div class="links-section" style="margin-top: 20px;">
-            <a href="{{ url_for('buynow') }}">
+            <a href="{{ url_for('buy_now') }}">
                 <button type="submit">Buy Now</button>
             </a>
-            <a href="{{ url_for('buyer_home') }}">
+            <a href="{{ url_for('buyerhome') }}">
                 <button type="submit">Back To Home</button>
             </a>
         </div>

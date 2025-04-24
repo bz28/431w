@@ -189,9 +189,9 @@
                     <td>{{ value }}</td>
                     {% endfor %}
                     <td>
-                        <form action="{{ url_for('productreviews') }}" method= "POST">
+                        <form method="get" action="{{ url_for('productreviews') }}">
                             <input type="hidden" name="listing_id" value="{{ row[1] }}">
-                            <button type="submit" style="background-color: #00448d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
+                            <button style="background-color: #00448d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
                                 View Details
                             </button>
                         </form>
