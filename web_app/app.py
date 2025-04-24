@@ -144,14 +144,16 @@ def buyerregistration():
 def helpdeskregistration():
     return render_template('helpdesk_registration.html')
 
-@app.route('/sellerhome')
+@app.route('/sellerhome', methods=['GET', 'POST'])
 def sellerhome():
     return render_template('seller_homepage.html')
 
 
-@app.route('/buyerhome')
+@app.route('/buyerhome', methods=['GET', 'POST'])
 def buyerhome():
     query = request.args.get('query', '').strip()
+    min_price = request.args.get('min_price')
+    max_price = request.args.get('max_price')
 
     connection = sql.connect('database.db')
     cursor = connection.cursor()
@@ -164,16 +166,30 @@ def buyerhome():
     cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
     itemscategory = cursor.fetchall()
 
-    # Build query to search products by name
-    if query:
-        cursor.execute("SELECT * FROM Product_Listings WHERE product_name LIKE ?", (f'%{query}%',))
-    else:
-        cursor.execute("SELECT * FROM Product_Listings")
+    # Base query
+    sql_query = '''
+        SELECT * FROM Product_Listings
+        WHERE (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
+    '''
+    params = [f'%{query}%'] * 4 if query else ['%%'] * 4
 
+    # Cast text price to REAL after removing '$'
+    if min_price:
+        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) >= ?"
+        params.append(min_price)
+    if max_price:
+        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) <= ?"
+        params.append(max_price)
+
+    cursor.execute(sql_query, params)
     products = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
 
     connection.close()
+    
+    if request.method == 'POST': # Redirect user based on role selection
+        session['listing_id'] = request.form.get('listing_id')
+        return redirect(url_for('productreviews'))
 
     return render_template(
         'buyer_homepage.html',
@@ -183,24 +199,9 @@ def buyerhome():
         products=products,
         columns=columns
     )
-    '''
-    connection = sql.connect('database.db')
-    cursor = connection.cursor()
-    cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
-    root_categories = cursor.fetchall()
-    cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
-    subcategories = cursor.fetchall()
-    cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
-    itemscategory = cursor.fetchall()
-    cursor.execute("SELECT * FROM Product_Listings")
-    products = cursor.fetchall()
-    columns = [description[0] for description in cursor.description]   
-    connection.close()
-    return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, itemscategory = itemscategory, products = products, columns = columns)
 
-    '''
 from datetime import datetime
-@app.route('/buy_now', methods=['POST'])
+@app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
     if 'email' not in session:
         return redirect(url_for('login'))
@@ -233,7 +234,16 @@ def buy_now():
         connection.commit()
 
     connection.close()
-    return render_template('buyer_placeorder.html')
+    return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
+
+@app.route('/sellerreviews', methods=['GET', 'POST'])
+def sellerreviews():
+    return render_template('seller_reviews.html')
+
+@app.route('/productreviews', methods=['GET', 'POST'])
+def productreviews():
+    return render_template('product_reviews.html')
+
 @app.route('/orders')
 def view_orders():
     if 'email' not in session:
@@ -248,7 +258,6 @@ def view_orders():
     columns = [description[0] for description in cursor.description]
     connection.close()
 
-    # Convert to list of dictionaries for template rendering
     order_list = [dict(zip(columns, order)) for order in orders]
 
     return render_template('buyer_orders.html', orders=order_list)

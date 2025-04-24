@@ -74,6 +74,20 @@
             margin-top: 60px;
             width: 100%;
         }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 500px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -86,35 +100,20 @@
     </header>
 
     <section>
-        <h2>Reviews for {{ product['name'] }}</h2>
+        <h2>Reviews</h2>
 
         <div class="product-details">
-            <p><strong>Category:</strong> {{ product['category'] }}</p>
-            <p><strong>Price:</strong> ${{ product['price'] }}</p>
-            <p><strong>Description:</strong> {{ product['description'] }}</p>
+            <p><strong>Category:</strong></p>
+
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    {% for col in columns %}
-                    <th>{{ col }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for review in reviews %}
-                <tr>
-                    {% for field in review %}
-                    <td>{{ field }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
         <div class="links-section" style="margin-top: 20px;">
-            <a href="{{ url_for('buyer_home') }}">Back to Home</a>
+            <a href="{{ url_for('buy_now') }}">
+                <button type="submit">Buy Now</button>
+            </a>
+            <a href="{{ url_for('buyerhome') }}">
+                <button type="submit">Back To Home</button>
+            </a>
         </div>
     </section>
 </body>
