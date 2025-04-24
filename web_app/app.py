@@ -165,6 +165,12 @@ def buyerhome():
     connection.close()
     return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, itemscategory = itemscategory, products = products, columns = columns)
 
+
+@app.route('/buy_now', methods=['POST'])
+def buy_now():
+    listing_id = request.form['listing_id']
+    return render_template('buyer_orders.html')
+
 @app.route('/helpdeskhome')
 def helpdeskhome():
     connection = sql.connect('database.db')
