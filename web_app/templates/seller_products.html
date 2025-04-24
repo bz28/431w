@@ -184,9 +184,10 @@
             {% for product in products %}
             <div class="product-card" data-category="{{ product[2] }}">
                 <h3>{{ product[3] }}</h3>
-                <p>Price: ${{ product[7] }}</p>
+                <p>Price: {{ product[7] }}</p>
                 <p>Stock: {{ product[6] }} units</p>
                 <p>Status: {{ product[8] }}</p>
+                <p>Description: {{ product[5] }}</p>
                 <button class="action-button">Reviews</button>
                 <button class="action-button">Edit</button>
                 <button class="action-button">Delete</button>

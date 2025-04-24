@@ -174,9 +174,8 @@
                 <td>{{ item }}</td>
                 {% endfor %}
                 <td>
-                    <button class="action-button" onclick="updateOrderStatus('{{ order[0] }}', 'Shipped')">Ship</button>
-                    <button class="action-button"
-                        onclick="updateOrderStatus('{{ order[0] }}', 'Cancelled')">Cancel</button>
+                    <a href="{{ url_for('update_order_status', order_id=order[0]) }}" class="action-button">Ship</a>
+                    <a href="{{ url_for('update_order_status', order_id=order[0]) }}" class="action-button">Cancel</a>
                 </td>
             </tr>
             {% endfor %}
@@ -195,18 +194,6 @@
         &copy; 2025 NittanyBusiness. All rights reserved.
     </footer>
 
-    <script>
-        function updateOrderStatus(orderId, status) {
-            if (confirm(`Are you sure you want to mark this order as ${status}?`)) {
-                // In a real application, this would send an AJAX request to update the order status
-                // For now, we'll just show an alert
-                alert(`Order ${orderId} has been marked as ${status}. In a real application, this would update the database.`);
-
-                // Optionally refresh the page to show updated data
-                // window.location.reload();
-            }
-        }
-    </script>
 </body>
 
 </html>
