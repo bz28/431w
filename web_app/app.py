@@ -3,6 +3,7 @@ import sqlite3 as sql
 import hashlib
 import random
 import string
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -200,7 +201,6 @@ def buyerhome():
         columns=columns
     )
 
-from datetime import datetime
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
     if 'email' not in session:
