@@ -231,6 +231,55 @@ def buy_now():
 
     connection.close()
     return render_template('buyer_placeorder.html')
+
+@app.route('/sellerreviews', methods=['GET'])
+def sellerreviews():
+    return render_template('seller_reviews.html')
+
+@app.route('/productreviews', methods=['GET'])
+def productreviews():
+    connection = sql.connect('database.db')
+    connection.row_factory = sql.Row
+    cursor = connection.cursor()
+
+    listing_id = session['listing_id']
+    cursor.execute('''
+        SELECT Seller_Email, Product_Title, Product_Name, Product_Description, Quantity, Product_Price 
+        FROM Products 
+        WHERE listing_id = ?
+    ''', (listing_id,))
+    product_row = cursor.fetchone()
+
+    if product_row:
+        product = {
+            'name': product_row['Product_Name'],
+            'category': product_row['Product_Title'],
+            'price': product_row['Product_Price'],
+            'description': product_row['Product_Description']
+        }
+    else:
+        product = {
+            'name': 'Unknown',
+            'category': 'N/A',
+            'price': 0,
+            'description': 'No description available.'
+        }
+
+    cursor.execute('''
+        SELECT o.owner_email AS reviewer, r.rate, r.review_desc
+        FROM Reviews r
+        JOIN Orders o ON r.order_id = o.rowid
+        WHERE r.order_id IN (
+            SELECT order_id FROM Orders WHERE listing_id = ?
+        )
+    ''', (listing_id,))
+    review_rows = cursor.fetchall()
+
+    reviews = [[row['reviewer'], row['rate'], row['review_desc']] for row in review_rows]
+    columns = ['Reviewer', 'Rating', 'Comment']
+
+    return render_template('product_reviews.html', product=product, columns=columns, reviews=reviews)
+
 @app.route('/orders')
 def view_orders():
     if 'email' not in session:
