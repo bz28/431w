@@ -353,6 +353,11 @@ def add_product():
     if 'email' not in session:
         return redirect(url_for('login'))
     
+    # Initialize variables for template
+    show_new_category = False
+    form_data = {}
+    error = None
+    
     if request.method == 'POST':
         # Get the seller's email from the session
         seller_email = session['email']
@@ -360,16 +365,37 @@ def add_product():
         # Get form data
         product_title = request.form['product_title']
         product_name = request.form['product_name']
+        category_selection = request.form['category']
         
-        # Handle category (check if it's a new category)
-        if request.form['category'] == 'new':
+        # Handle category selection
+        if category_selection == 'new':
+            # If user selected "new" but didn't provide a new category name
+            if 'new_category' not in request.form or not request.form['new_category'].strip():
+                # Save form data to repopulate the form
+                form_data = {
+                    'product_title': product_title,
+                    'product_name': product_name,
+                    'category': category_selection,
+                    'product_description': request.form.get('product_description', ''),
+                    'quantity': request.form.get('quantity', ''),
+                    'product_price': "$" +request.form.get('product_price', ''),
+                    'status': request.form.get('status', '')
+                    
+                }
+                show_new_category = True
+                error = "Please provide a name for the new category"
+                return render_template('seller_addproducts.html', 
+                                      show_new_category=show_new_category, 
+                                      form_data=form_data,
+                                      error=error)
+            
             category = request.form['new_category']
         else:
-            category = request.form['category']
+            category = category_selection
             
         product_description = request.form['product_description']
         quantity = request.form['quantity']
-        product_price = request.form['product_price']
+        product_price = "$" + request.form['product_price']
         status = request.form['status']
         
         # Connect to database
@@ -397,7 +423,11 @@ def add_product():
         return redirect(url_for('seller_products'))
     
     # If it's a GET request, just render the form
-    return render_template('seller_addproducts.html')
+    # Or if we need to show the form again due to validation errors
+    return render_template('seller_addproducts.html', 
+                          show_new_category=show_new_category, 
+                          form_data=form_data,
+                          error=error)
 
 
 @app.route('/seller_orders')
@@ -409,7 +439,7 @@ def seller_orders():
     connection = sql.connect('database.db')
     cursor = connection.cursor()
     
-    # Assuming your table is called Product_listings
+    # Only fetch orders that are not shipped or cancelled
     cursor.execute('SELECT * FROM Orders WHERE seller_email = ?', (email,))
     orders = cursor.fetchall()
     
@@ -419,6 +449,29 @@ def seller_orders():
     
     connection.close()
     return render_template('seller_orders.html', orders=orders, columns=columns)
+
+@app.route('/seller_reviews')
+def seller_reviews():
+    return render_template('seller_reviews.html')
+
+@app.route('/update_order_status/<order_id>/', methods=['GET'])
+def update_order_status(order_id):
+    if 'email' not in session or session['role'] != "Sellers":
+        return redirect(url_for('login'))
+    
+    seller_email = session['email']
+    
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    
+    # Remove from Orders table
+    cursor.execute('DELETE FROM Orders WHERE Order_ID = ? AND seller_email = ?', 
+                  (order_id, seller_email))
+    
+    connection.commit()
+    connection.close()
+    
+    return redirect(url_for('seller_orders'))
 
 if __name__ == "__main__":
     app.run(debug=True)
