@@ -243,11 +243,7 @@ def productreviews():
     cursor = connection.cursor()
 
     listing_id = session['listing_id']
-    cursor.execute('''
-        SELECT Seller_Email, Product_Title, Product_Name, Product_Description, Quantity, Product_Price 
-        FROM Products 
-        WHERE listing_id = ?
-    ''', (listing_id,))
+    cursor.execute('SELECT Seller_Email, Product_Title, Product_Name, Product_Description, Quantity, Product_Price FROM Products WHERE listing_id = ?', (listing_id,))
     product_row = cursor.fetchone()
 
     if product_row:
@@ -294,7 +290,6 @@ def view_orders():
     columns = [description[0] for description in cursor.description]
     connection.close()
 
-    # Convert to list of dictionaries for template rendering
     order_list = [dict(zip(columns, order)) for order in orders]
 
     return render_template('buyer_orders.html', orders=order_list)
