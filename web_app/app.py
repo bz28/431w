@@ -205,6 +205,23 @@ def buy_now():
     listing_id = request.form['listing_id']
     return render_template('buyer_placeorder.html')
 
+@app.route('/orders')
+def view_orders():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+
+    user_email = session['email']
+    
+    import csv
+    orders = []
+    with open('CSV Dataset/Orders.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['Buyer_Email'] == user_email:
+                orders.append(row)
+
+    return render_template('buyer_orders.html', orders=orders)
+
 @app.route('/helpdeskhome')
 def helpdeskhome():
     connection = sql.connect('database.db')
