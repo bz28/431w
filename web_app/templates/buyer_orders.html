@@ -28,6 +28,7 @@
     </style>
 </head>
 <body>
+
     <h2>Your Order History</h2>
     {% if orders %}
     <table>
@@ -35,23 +36,29 @@
             <th>Order ID</th>
             <th>Seller Email</th>
             <th>Listing ID</th>
+            <th>Buyer Email</th>
             <th>Date</th>
             <th>Quantity</th>
             <th>Payment</th>
         </tr>
         {% for order in orders %}
         <tr>
-            <td>{{ order['Order_ID'] }}</td>
-            <td>{{ order['Seller_Email'] }}</td>
-            <td>{{ order['Listing_ID'] }}</td>
-            <td>{{ order['Date'] }}</td>
-            <td>{{ order['Quantity'] }}</td>
-            <td>${{ order['Payment'] }}</td>
+            <td>{{ order['order_id'] }}</td>
+            <td>{{ order['seller_email'] }}</td>
+            <td>{{ order['listing_id'] }}</td>
+            <td>{{ order['buyer_email'] }}</td>
+            <td>{{ order['date'] }}</td>
+            <td>{{ order['quantity'] }}</td>
+            <td>${{ order['payment'] }}</td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
     <p>You haven't placed any orders yet.</p>
     {% endif %}
+
+
+    <a href="{{ url_for('buyerhome') }}">Return to Buyer Home</a>
+
 </body>
 </html>

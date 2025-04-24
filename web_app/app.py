@@ -199,12 +199,41 @@ def buyerhome():
     return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, itemscategory = itemscategory, products = products, columns = columns)
 
     '''
-    
+from datetime import datetime
 @app.route('/buy_now', methods=['POST'])
 def buy_now():
-    listing_id = request.form['listing_id']
-    return render_template('buyer_placeorder.html')
+    if 'email' not in session:
+        return redirect(url_for('login'))
 
+    buyer_email = session['email']
+    listing_id = request.form['listing_id']
+    order_date = datetime.now().strftime('%Y/%m/%d')
+
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+
+    # Get product info
+    cursor.execute("SELECT seller_email, product_price FROM Product_Listings WHERE listing_id = ?", (listing_id,))
+    result = cursor.fetchone()
+
+    if result:
+        seller_email, product_price = result
+        quantity = 1  # Fixed quantity
+        payment = int(product_price.replace('$', '')) * quantity
+
+        # Generate unique order_id
+        order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 6)
+
+        # Insert into Orders table
+        cursor.execute('''
+            INSERT INTO Orders (Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity, payment))
+
+        connection.commit()
+
+    connection.close()
+    return render_template('buyer_placeorder.html')
 @app.route('/orders')
 def view_orders():
     if 'email' not in session:
@@ -212,15 +241,17 @@ def view_orders():
 
     user_email = session['email']
     
-    import csv
-    orders = []
-    with open('CSV Dataset/Orders.csv', newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            if row['Buyer_Email'] == user_email:
-                orders.append(row)
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM Orders WHERE Buyer_Email = ?', (user_email,))
+    orders = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]
+    connection.close()
 
-    return render_template('buyer_orders.html', orders=orders)
+    # Convert to list of dictionaries for template rendering
+    order_list = [dict(zip(columns, order)) for order in orders]
+
+    return render_template('buyer_orders.html', orders=order_list)
 
 @app.route('/helpdeskhome')
 def helpdeskhome():
