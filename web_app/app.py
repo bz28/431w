@@ -231,6 +231,13 @@ def generate_unique_id(cursor, table, column, length):
         if not cursor.fetchone():
             return random_id
 
+def generate_unique_integer_id(cursor, table, column, length):
+    while True:
+        random_id = ''.join(random.choices(string.digits, k=length))
+        cursor.execute(f"SELECT 1 FROM {table} WHERE {column} = ?", (random_id,))
+        if not cursor.fetchone():
+            return random_id
+
 def check_login(email, password):
     connection = sql.connect('database.db')
     cursor = connection.cursor()
