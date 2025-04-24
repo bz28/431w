@@ -166,7 +166,14 @@ def buyerhome():
 
     # Build query to search products by name
     if query:
-        cursor.execute("SELECT * FROM Product_Listings WHERE product_name LIKE ?", (f'%{query}%',))
+        search_term = f'%{query}%'
+        cursor.execute('''
+            SELECT * FROM Product_Listings
+            WHERE Product_Name LIKE ?
+            OR Product_Description LIKE ?
+            OR Category LIKE ?
+            OR Seller_Email LIKE ?
+        ''', (search_term, search_term, search_term, search_term))
     else:
         cursor.execute("SELECT * FROM Product_Listings")
 
