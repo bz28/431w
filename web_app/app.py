@@ -145,9 +145,6 @@ def helpdeskregistration():
 def sellerhome():
     return render_template('seller_homepage.html')
 
-@app.route('/seller_orders')
-def seller_orders():
-    return render_template('seller_orders.html')
 
 @app.route('/buyerhome')
 def buyerhome():
@@ -277,5 +274,27 @@ def add_product():
     
     # If it's a GET request, just render the form
     return render_template('seller_addproducts.html')
+
+
+@app.route('/seller_orders')
+def seller_orders():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    email = session['email']
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    
+    # Assuming your table is called Product_listings
+    cursor.execute('SELECT * FROM Orders WHERE seller_email = ?', (email,))
+    orders = cursor.fetchall()
+    
+    # Get column names for reference
+    cursor.execute('PRAGMA table_info(Orders)')
+    columns = [column[1] for column in cursor.fetchall()]
+    
+    connection.close()
+    return render_template('seller_orders.html', orders=orders, columns=columns)
+
 if __name__ == "__main__":
     app.run(debug=True)

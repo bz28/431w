@@ -119,6 +119,15 @@
             width: 100%;
         }
 
+        .no-orders {
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
+
         @media (max-width: 768px) {
             .orders-table {
                 width: 100%;
@@ -151,85 +160,53 @@
     <section>
         <h2>Manage Orders</h2>
 
-
+        {% if orders %}
         <table class="orders-table">
             <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Date</th>
+                {% for column in columns %}
+                <th>{{ column }}</th>
+                {% endfor %}
                 <th>Actions</th>
             </tr>
+            {% for order in orders %}
             <tr>
-                <td>ORD-1001</td>
-                <td>John Smith</td>
-                <td>Wireless Mouse</td>
-                <td>1</td>
-                <td>$25.99</td>
-                <td>2023-11-01</td>
+                {% for item in order %}
+                <td>{{ item }}</td>
+                {% endfor %}
                 <td>
-                    <button class="action-button">Ship</button>
-                    <button class="action-button">Cancel</button>
+                    <button class="action-button" onclick="updateOrderStatus('{{ order[0] }}', 'Shipped')">Ship</button>
+                    <button class="action-button"
+                        onclick="updateOrderStatus('{{ order[0] }}', 'Cancelled')">Cancel</button>
                 </td>
             </tr>
-            <tr>
-                <td>ORD-1002</td>
-                <td>Emily Johnson</td>
-                <td>Bluetooth Speaker</td>
-                <td>2</td>
-                <td>$90.00</td>
-                <td>2023-10-29</td>
-                <td>
-                    <button class="action-button">Ship</button>
-                    <button class="action-button">Cancel</button>
-                </td>
-            </tr>
-            <tr>
-                <td>ORD-1003</td>
-                <td>Michael Brown</td>
-                <td>Desk Organizer</td>
-                <td>1</td>
-                <td>$12.49</td>
-                <td>2023-10-25</td>
-                <td>
-                    <button class="action-button">Ship</button>
-                    <button class="action-button">Cancel</button>
-                </td>
-            </tr>
-            <tr>
-                <td>ORD-1004</td>
-                <td>Sarah Wilson</td>
-                <td>Pack of Pens</td>
-                <td>3</td>
-                <td>$14.97</td>
-                <td>2023-10-22</td>
-                <td>
-                    <button class="action-button">Ship</button>
-                    <button class="action-button">Cancel</button>
-                </td>
-            </tr>
-            <tr>
-                <td>ORD-1005</td>
-                <td>David Lee</td>
-                <td>Ergonomic Chair</td>
-                <td>1</td>
-                <td>$129.99</td>
-                <td>2023-11-02</td>
-                <td>
-                    <button class="action-button">Ship</button>
-                    <button class="action-button">Cancel</button>
-                </td>
-            </tr>
+            {% endfor %}
         </table>
+        {% else %}
+        <div class="no-orders">
+            <h3>No Orders Found</h3>
+            <p>You don't have any orders yet. When customers place orders for your products, they will appear here.</p>
+        </div>
+        {% endif %}
 
-        <a href="{{ url_for('seller_home') }}" class="back-button">Back to Dashboard</a>
+        <a href="{{ url_for('sellerhome') }}" class="back-button">Back to Dashboard</a>
     </section>
 
     <footer>
         &copy; 2025 NittanyBusiness. All rights reserved.
     </footer>
+
+    <script>
+        function updateOrderStatus(orderId, status) {
+            if (confirm(`Are you sure you want to mark this order as ${status}?`)) {
+                // In a real application, this would send an AJAX request to update the order status
+                // For now, we'll just show an alert
+                alert(`Order ${orderId} has been marked as ${status}. In a real application, this would update the database.`);
+
+                // Optionally refresh the page to show updated data
+                // window.location.reload();
+            }
+        }
+    </script>
 </body>
 
 </html>
