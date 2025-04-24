@@ -54,58 +54,6 @@
             font-size: 16px;
         }
 
-        .category-menu {
-            margin: 20px auto;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .category-menu button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .category-menu button:hover {
-            background-color: #0056b3;
-        }
-
-        .product-listing {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px 0;
-        }
-
-        .product-card {
-            background-color: white;
-            border: 1px solid #ddd;
-            width: 250px;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-
-        .product-card h3 {
-            margin-top: 0;
-            color: #00448d;
-        }
-
-        .product-card p {
-            font-size: 14px;
-        }
-
-        .links-section {
-            margin-top: 40px;
-        }
-
         .links-section a {
             display: inline-block;
             margin: 10px;
@@ -122,32 +70,50 @@
             width: 100%;
         }
 
-        @media (max-width: 600px) {
-            .product-card {
-                width: 90%;
-            }
+        .dropdown {
+            display: inline-block;
+            position: relative;
+            margin: 10px;
         }
+
+        .dropdown-btn {
+            background-color: #00448d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            text-align: left;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+
+        .category-item {
+            padding: 12px 16px;
+            display: block;
+            cursor: pointer;
+            color: #00448d;
+            font-weight: bold;
+        }
+
+        .category-item:hover {
+            background-color: #ddd;
+        }
+
     </style>
-    <script>
-        function filterProducts() {
-            const input = document.getElementById("searchInput").value.toLowerCase();
-            const cards = document.querySelectorAll(".product-card");
-
-            cards.forEach(card => {
-                const title = card.querySelector("h3").innerText.toLowerCase();
-                const category = card.getAttribute("data-category").toLowerCase();
-                card.style.display = title.includes(input) || category.includes(input) ? "block" : "none";
-            });
-        }
-
-        function filterByCategory(category) {
-            const cards = document.querySelectorAll(".product-card");
-            cards.forEach(card => {
-                const cardCategory = card.getAttribute("data-category");
-                card.style.display = category === 'All' || cardCategory === category ? "block" : "none";
-            });
-        }
-    </script>
 </head>
 <body>
     <header>
@@ -162,83 +128,25 @@
         <h2>Welcome to NittanyBusiness!</h2>
 
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search products by name or category..." onkeyup="filterProducts()">
+            <input type="text" id="searchInput" placeholder="Search products by name or category...">
         </div>
 
-        <div class="category-menu">
-            <button onclick="filterByCategory('All')">All</button>
-            <button onclick="filterByCategory('Electronics')">Electronics</button>
-            <button onclick="filterByCategory('Office')">Office Supplies</button>
-            <button onclick="filterByCategory('Furniture')">Furniture</button>
-            <button onclick="filterByCategory('Food')">Food & Beverage</button>
-        </div>
-
-        <div class="product-listing">
-            <!-- Electronics -->
-            <div class="product-card" data-category="Electronics">
-                <h3>Wireless Mouse</h3>
-                <p>Seller: TechDude</p>
-                <p>Price: $25.99</p>
-                <p>Rating: ★★★★☆</p>
-            </div>
-            <div class="product-card" data-category="Electronics">
-                <h3>Bluetooth Speaker</h3>
-                <p>Seller: AudioDude</p>
-                <p>Price: $45.00</p>
-                <p>Rating: ★★★★★</p>
-            </div>
-
-            <!-- Office -->
-            <div class="product-card" data-category="Office">
-                <h3>Desk Organizer</h3>
-                <p>Seller: OfficeDude</p>
-                <p>Price: $12.49</p>
-                <p>Rating: ★★★★☆</p>
-            </div>
-            <div class="product-card" data-category="Office">
-                <h3>Pack of Pens</h3>
-                <p>Seller: SchoolSupplier</p>
-                <p>Price: $4.99</p>
-                <p>Rating: ★★★★☆</p>
-            </div>
-
-            <!-- Furniture -->
-            <div class="product-card" data-category="Furniture">
-                <h3>Ergonomic Chair</h3>
-                <p>Seller: ChairDude</p>
-                <p>Price: $129.99</p>
-                <p>Rating: ★★★☆☆</p>
-            </div>
-            <div class="product-card" data-category="Furniture">
-                <h3>Standing Desk</h3>
-                <p>Seller: DeskDude</p>
-                <p>Price: $299.99</p>
-                <p>Rating: ★★★★★</p>
-            </div>
-
-            <!-- Food -->
-            <div class="product-card" data-category="Food">
-                <h3>Organic Coffee</h3>
-                <p>Seller: CoffeeDude</p>
-                <p>Price: $14.99</p>
-                <p>Rating: ★★★★★</p>
-            </div>
-            <div class="product-card" data-category="Food">
-                <h3>Snack Box</h3>
-                <p>Seller: SnackDude</p>
-                <p>Price: $19.95</p>
-                <p>Rating: ★★★★☆</p>
+        <div class="dropdown">
+            <button class="dropdown-btn">Categories</button>
+            <div class="dropdown-content">
+                {% for category in root_categories %}
+                    <div class="category">
+                        <span class="category-item">{{ category[0] }}</span>
+                        
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
         <div class="links-section">
-            <a href="#">🛒 View Order History</a>
-            <a href="#">⭐ Leave a Review</a>
+            <a href="#">View Order History</a>
+            <a href="#">Leave a Review</a>
         </div>
     </section>
-
-    <footer>
-        &copy; 2025 NittanyBusiness. All rights reserved.
-    </footer>
 </body>
 </html>
