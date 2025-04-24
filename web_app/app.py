@@ -27,12 +27,15 @@ def login():
             role = check_role(email)
             if result and role == "Sellers":
                 session['email'] = email
+                session['role'] = role
                 return redirect(url_for('sellerhome')) # Sends user to seller portal if it is a seller
             elif result and role == "Buyers":
                 session['email'] = email
+                session['role'] = role
                 return redirect(url_for('buyerhome')) # Sends user to buyer portal if it is a seller
             elif result and role == "Helpdesk":
                 session['email'] = email
+                session['role'] = role
                 return redirect(url_for('helpdeskhome')) # Sends user to helpdesk portal if it is a seller
             else:
                 error = 'Invalid email or password' 
@@ -59,11 +62,11 @@ def editprofile():
         return redirect(url_for('profile'))
     return render_template('edit_profile.html', email=session['email'])
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'email' not in session:
         return redirect(url_for('login'))
-    return render_template('profile.html', email=session['email'])
+    return render_template('profile.html', email=session['email'], role=session['role'])
 
 @app.route('/selectrole', methods=['GET', 'POST'])
 def selectrole():

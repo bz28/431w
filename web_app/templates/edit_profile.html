@@ -34,7 +34,7 @@
         }
 
         input[type="new_password"] {
-            width: 95%;
+            width: 80%;
             padding: 8px;
             margin: 10px 0;
             border-radius: 4px;
@@ -46,7 +46,7 @@
             color: white;
             padding: 10px;
             border: none;
-            width: 95%;
+            width: 90%;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 5px;
@@ -54,6 +54,24 @@
 
         button:hover {
             background-color: #218838;
+        }
+        .form-inline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 10px 0;
+        }
+
+        .form-inline label {
+            margin-right: 20px;
+            white-space: nowrap;
+        }
+
+        .form-inline input[type="password"] {
+            width: 90%;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
@@ -65,7 +83,10 @@
         </div>
 
         <form action="{{ url_for('editprofile') }}" method="post">
-            <input type="new_password" name="NewPassword" placeholder="New Password" required>
+            <div class="form-inline">
+                <label for="new-password"><strong>Password:</strong></label>
+                <input type="password" id="new-password" name="NewPassword" placeholder="New Password" required>
+            </div>
             <button type="submit">Change Password</button>
         </form>
 

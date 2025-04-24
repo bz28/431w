@@ -63,6 +63,17 @@
         <div class="profile-info">
             <p><strong>Email:</strong> {{ email }}</p>
         </div>
+        <form 
+            action="{% if role == 'Buyers' %}
+                        {{ url_for('buyerhome') }}
+                    {% elif role == 'Sellers' %}
+                        {{ url_for('sellerhome') }}
+                    {% elif role == 'Helpdesk' %}
+                        {{ url_for('helpdeskhome') }}
+                    {% endif %}" 
+            method="get">
+            <button type="submit">Go Home</button>
+        </form>
         <form action="{{ url_for('editprofile') }}" method="get">
             <button type="submit">Edit Profile</button>
         </form>
