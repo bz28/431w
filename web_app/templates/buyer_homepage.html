@@ -43,12 +43,12 @@
             padding: 20px;
         }
 
-        .search-bar {
+        .bar {
             margin: 20px auto;
             width: 80%;
         }
 
-        .search-bar input[type="text"] {
+        .bar input[type="text"] {
             width: 60%;
             padding: 10px;
             font-size: 16px;
@@ -113,6 +113,23 @@
             background-color: #ddd;
         }
 
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1em;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.75em;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+
     </style>
 </head>
 <body>
@@ -127,9 +144,21 @@
     <section>
         <h2>Welcome to NittanyBusiness!</h2>
 
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search products by name or category...">
-        </div>
+        <form action="search.php" method="GET">
+            <div class="bar">
+                <input type="text" name="query" id="searchQuery" placeholder="Search products by name or category...">
+            </div>
+            <div class="bar">
+                <input type="number" name="min_price" id="minPrice" placeholder="Min Price" min="0">
+            </div>
+            <div class="bar">
+                <input type="number" name="max_price" id="maxPrice" placeholder="Max Price" min="0">
+            </div>
+            <button type="submit">Search</button>
+        </form>
+
+
+
 
         <div class="dropdown">
             <button class="dropdown-btn">Categories</button>
@@ -142,6 +171,27 @@
                 {% endfor %}
             </div>
         </div>
+
+        <h1>Products</h1>
+        <table>
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in products %}
+                <tr>
+                    {% for value in row %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
 
         <div class="links-section">
             <a href="#">View Order History</a>

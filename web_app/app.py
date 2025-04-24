@@ -155,9 +155,12 @@ def buyerhome():
     cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
     subcategories = cursor.fetchall()
     cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
-    items = cursor.fetchall()
+    itemscategory = cursor.fetchall()
+    cursor.execute("SELECT * FROM Product_Listings")
+    products = cursor.fetchall()
+    columns = [description[0] for description in cursor.description]   
     connection.close()
-    return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, items = items)
+    return render_template('buyer_homepage.html', root_categories=root_categories, subcategories=subcategories, itemscategory = itemscategory, products = products, columns = columns)
 
 @app.route('/helpdeskhome')
 def helpdeskhome():
