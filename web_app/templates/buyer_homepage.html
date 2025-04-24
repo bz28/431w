@@ -189,10 +189,10 @@
                     <td>{{ value }}</td>
                     {% endfor %}
                     <td>
-                        <form action="{{ url_for('buy_now') }}" method="POST">
+                        <form action="{{ url_for('productreviews') }}" method= "POST">
                             <input type="hidden" name="listing_id" value="{{ row[1] }}">
                             <button type="submit" style="background-color: #00448d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
-                                Buy Now
+                                View Details
                             </button>
                         </form>
                     </td>
