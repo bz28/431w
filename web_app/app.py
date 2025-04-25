@@ -28,7 +28,7 @@ def login():
             role = check_role(email)
             if result and role == "Sellers":
                 session['email'] = email
-                session["seller_email"]=email
+                session["seller_email"] = email
                 session['role'] = role
                 return redirect(url_for('sellerhome')) # Sends user to seller portal if it is a seller
             elif result and role == "Buyers":
@@ -199,39 +199,48 @@ def buyerhome():
         products=products,
         columns=columns
     )
+@app.route('/productreviews', methods=['GET', 'POST'])
+def productreviews():
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    # Given Listing_ID from Product_Listing
+    listing_id = session['listing_id']
+
+    # Get Seller Info
+    # Get Product info
+    # Get Reviews
+    # stores order info ()
+    # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,Payment
+    connection.commit()
+    connection.close()
+    return render_template('product_reviews.html')
+
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
     if 'email' not in session:
         return redirect(url_for('login'))
 
     buyer_email = session['email']
-    listing_id = request.form['listing_id']
+    listing_id = session['listing_id']
     order_date = datetime.now().strftime('%Y/%m/%d')
-
     connection = sql.connect('database.db')
     cursor = connection.cursor()
-
     # Get product info
     cursor.execute("SELECT seller_email, product_price FROM Product_Listings WHERE listing_id = ?", (listing_id,))
     result = cursor.fetchone()
-
     if result:
         seller_email, product_price = result
         quantity = 1  # Fixed quantity
         payment = int(product_price.replace('$', '')) * quantity
-
         # Generate unique order_id
-        order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 6)
-
+        order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 3)
         # Insert into Orders table
         cursor.execute('''
             INSERT INTO Orders (Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity, payment))
-
         connection.commit()
-
-    connection.close()
+        connection.close()
     return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
 
 
@@ -270,11 +279,9 @@ def sellerreviews():
     rating = cursor.fetchall()
     business_name = business_name[0][0]
     rating = rating[0][0]
+    connection.commit()
+    connection.close()
     return render_template('seller_reviews.html', business_name=business_name, rating=rating)
-
-@app.route('/productreviews', methods=['GET', 'POST'])
-def productreviews():
-    return render_template('product_reviews.html')
 
 @app.route('/orders')
 def view_orders():
