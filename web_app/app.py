@@ -521,8 +521,8 @@ def seller_orders():
     connection.close()
     return render_template('seller_orders.html', orders=orders, columns=columns)
 
-@app.route('/update_order_status/<order_id>/', methods=['GET'])
-def update_order_status(order_id):
+@app.route('/update_order_status/<order_id>/<status>', methods=['GET'])
+def update_order_status(order_id, status):
     if 'email' not in session or session['role'] != "Sellers":
         return redirect(url_for('login'))
     
@@ -531,11 +531,32 @@ def update_order_status(order_id):
     connection = sql.connect('database.db')
     cursor = connection.cursor()
     
-    # Remove from Orders table
-    cursor.execute('DELETE FROM Orders WHERE Order_ID = ? AND seller_email = ?', 
+    # First, get the payment amount and listing_id from the order
+    cursor.execute('SELECT Payment, Listing_ID FROM Orders WHERE Order_ID = ? AND seller_email = ?', 
                   (order_id, seller_email))
+    order_info = cursor.fetchone()
     
-    connection.commit()
+    if order_info:
+        payment, listing_id = order_info
+        
+        # Update seller's balance by subtracting the payment
+        cursor.execute('UPDATE Sellers SET balance = balance - ? WHERE email = ?', 
+                      (payment, seller_email))
+        
+        # Update product quantity and status in Product_Listings
+        cursor.execute('''
+            UPDATE Product_Listings 
+            SET Quantity = Quantity + 1,
+                Status = CASE WHEN Status = 2 THEN 1 ELSE Status END
+            WHERE Listing_ID = ?
+        ''', (listing_id,))
+        
+        # Finally, delete the order
+        cursor.execute('DELETE FROM Orders WHERE Order_ID = ? AND seller_email = ?', 
+                      (order_id, seller_email))
+        
+        connection.commit()
+    
     connection.close()
     
     return redirect(url_for('seller_orders'))
