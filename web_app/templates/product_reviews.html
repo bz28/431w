@@ -1,113 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Reviews</title>
-    <style>
-        body {
-            font-family: 'Times New Roman', Times, serif;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            background-color: #f8f9fa;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Reviews</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
 
-        header {
-            background-color: #00448d;
-            color: white;
-            padding: 15px;
-            font-size: 24px;
-            position: relative;
-        }
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .top-right-links {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-        }
+    header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
 
-        .top-right-links a {
-            color: white;
-            text-decoration: none;
-            margin-left: 15px;
-        }
+    .top-right-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 16px;
+    }
 
-        .top-right-links a:hover {
-            text-decoration: underline;
-        }
+    .top-right-links a:hover {
+      text-decoration: underline;
+    }
 
-        section {
-            padding: 20px;
-        }
+    section {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
 
-        h1, h2 {
-            color: #333;
-        }
+    .product-details h1 {
+      font-size: 18px;
+      margin: 5px 0;
+      font-weight: normal;
+    }
 
-        .product-details {
-            margin-bottom: 20px;
-        }
+    .product-details h3 {
+      font-size: 32px;
+      margin-top: 30px;
+      color: #222;
+    }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 1em;
-        }
+    .review-details h1 {
+      font-size: 24px;
+      margin: 40px 0 10px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
 
-        th, td {
-            border: 1px solid #ccc;
-            padding: 0.75em;
-            text-align: left;
-        }
+    .links-section {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
+    }
 
-        th {
-            background-color: #f4f4f4;
-        }
+    .links-section a {
+      text-decoration: none;
+    }
 
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px;
-            border: none;
-            width: 500px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
 
-        button:hover {
-            background-color: #218838;
-        }
-    </style>
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      .links-section {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .top-right-links {
+        margin-top: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h2>NittanyBusiness</h2>
-        <div class="top-right-links">
-            <a href="{{ url_for('profile') }}">View Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-        </div>
-    </header>
+  <header>
+    <h2>NittanyBusiness</h2>
+    <div class="top-right-links">
+      <a href="{{ url_for('profile') }}">View Profile</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </header>
 
-    <section>
-        <div class="product-details">
-            <h1>Seller: {{business_name}}</h1>
-            <h1>Seller rating: {{rating}}</h1>
-            <h1>Product_price: {{product_price}}</h1>
-            <h1>Reviews:</h1>
-        </div>
+  <section>
+    <div class="product-details">
+      <h1>{{ business_name }}</h1>
+      <h1>Seller Rating: {{ rating }}</h1>
+      <h3>{{ product_title }}</h3>
+      <h1>Price: {{ product_price }}</h1>
+    </div>
 
-        <div class="links-section" style="margin-top: 20px;">
-            <a href="{{ url_for('order_confirmation') }}">
-                <button type="submit">Proceed To Purchase</button>
-            </a>
-            <a href="{{ url_for('buyerhome') }}">
-                <button type="submit">Back To Home</button>
-            </a>
-        </div>
-    </section>
+    <div class="review-details">
+      <h1>Reviews:</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Rating</th>
+            <th>Review</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for review in reviews %}
+          <tr>
+            <td>{{ review.1 }}</td>
+            <td>{{ review.2 }}</td>
+            <td>{{ review.3 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="links-section">
+      <a href="{{ url_for('order_confirmation') }}">
+        <button type="submit">Proceed To Purchase</button>
+      </a>
+      <a href="{{ url_for('buyerhome') }}">
+        <button type="submit">Back To Home</button>
+      </a>
+    </div>
+  </section>
 </body>
 </html>

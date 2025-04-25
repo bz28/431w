@@ -1,49 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Your Orders</title>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Reviews</title>
     <style>
         body {
             font-family: 'Times New Roman', Times, serif;
-            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
             text-align: center;
+            background-color: #f8f9fa;
         }
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-        th {
+
+        header {
             background-color: #00448d;
             color: white;
+            padding: 15px;
+            font-size: 24px;
+            position: relative;
         }
-        h2 {
+
+        .top-right-links {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        .top-right-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .top-right-links a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            padding: 20px;
+        }
+
+        h1, h2 {
             color: #333;
         }
-        .review-button {
-            background-color: #00448d;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
+
+        .product-details {
+            margin-bottom: 20px;
         }
-        .review-button:hover {
-            background-color: #003366;
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1em;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.75em;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 500px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
+    <header>
+        <h2>NittanyBusiness</h2>
+        <div class="top-right-links">
+            <a href="{{ url_for('profile') }}">View Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
 
     <h2>Enter your information</h2>
-
-
-    <a href="{{ url_for('buyerhome') }}">Return to Buyer Home</a>
+        <form>
+            <label for="Cnum">Credit Card Number:</label>
+            <input type="text" id="Cnum" name="Cnum"><br>
+            <label for="Ctype">Card Type:</label>
+            <input type="text" id="Ctype" name="Ctype"><br>
+            <label for="Cexpm">Expiration month:</label>
+            <input type="text" id="Cexpm" name="Cexpm"><br>
+            <label for="Cexpy"> Expiration year:</label>
+            <input type="text" id="Cexpy" name="Cexpy"><br>
+            <label for="Ccode">Security Code:</label>
+            <input type="text" id="Ccode" name="Ccode">
+        </form>
+        <form action="{{ url_for('buy_now') }}" method="post">
+            <button type="submit">Purchase</button>
+        </form>
+        <div>
+            <a href="{{ url_for('buyerhome') }}">
+            <button type="submit">Back To Home</button>
+            </a>
+        </div>
+        
 
 </body>
 </html>

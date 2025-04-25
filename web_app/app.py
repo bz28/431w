@@ -210,19 +210,27 @@ def productreviews():
     cursor.execute('SELECT business_name FROM Sellers WHERE email = ?', (session['seller_email'],))
     business_name = cursor.fetchall()
     cursor.execute('SELECT AVG(R.Rate) AS Average_Rate FROM Orders O JOIN Reviews R ON O.Order_ID = R.Order_ID WHERE O.Seller_Email = ? GROUP BY O.Seller_Email;', (session['seller_email'],))
-    rating = cursor.fetchall()
+    rating = cursor.fetchall() # Get Product info
     cursor.execute('SELECT product_price FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
     product_price = cursor.fetchall()
-    # Get Product info
+    cursor.execute('SELECT product_title FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    product_title = cursor.fetchall()
+
     # Get Reviews
-    # stores order info ()
-    # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,Payment
-    session['business_name'] = business_name
-    session['rating'] = rating
-    session['product_price'] = product_price
+    # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,
+    cursor.execute('SELECT R.order_id, R.rate, R.review_desc FROM Reviews R JOIN Orders O ON R.order_id = O.order_id WHERE O.listing_id = ?', (session['listing_id'],))
+    reviews = cursor.fetchall()
+    session['business_name'] = business_name[0][0]
+    if (len(rating) == 0):
+        session['rating'] = "No reviews"
+    else:
+        session['rating'] = rating[0][0]
+    session['product_price'] = product_price[0][0]
+    session['product_title'] = product_title[0][0]
+    session['reviews'] = reviews
     connection.commit()
     connection.close()
-    return render_template('product_reviews.html', business_name=business_name, rating=rating, product_price=product_price)
+    return render_template('product_reviews.html', reviews=session['reviews'], business_name=session['business_name'], rating=session['rating'], product_price=session['product_price'], product_title=session['product_title'])
 
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
@@ -581,5 +589,8 @@ def update_order_status(order_id):
 def order_confirmation():
     return render_template('credit_card.html')
 
+@app.route('/creditcard', methods = ['POST'])
+def creditcard():
+    return render_template('credit_card.html')
 if __name__ == "__main__":
     app.run(debug=True)
