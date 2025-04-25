@@ -528,8 +528,8 @@ def seller_orders():
     connection.close()
     return render_template('seller_orders.html', orders=orders, columns=columns)
 
-@app.route('/update_order_status/<order_id>/<status>', methods=['GET'])
-def update_order_status(order_id, status):
+@app.route('/update_order_status/<order_id>', methods=['GET'])
+def update_order_status(order_id):
     if 'email' not in session or session['role'] != "Sellers":
         return redirect(url_for('login'))
     
