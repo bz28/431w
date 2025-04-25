@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Orders</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background-color: #00448d;
+            color: white;
+        }
+        h2 {
+            color: #333;
+        }
+        .review-button {
+            background-color: #00448d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .review-button:hover {
+            background-color: #003366;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Enter your information</h2>
+
+
+    <a href="{{ url_for('buyerhome') }}">Return to Buyer Home</a>
+
+</body>
+</html>

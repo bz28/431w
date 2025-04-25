@@ -547,5 +547,9 @@ def update_order_status(order_id):
     
     return redirect(url_for('seller_orders'))
 
+@app.route('/order_confirmation', methods = ['GET'])
+def order_cofirmation():
+    return render_template('credit_card.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
