@@ -581,5 +581,8 @@ def update_order_status(order_id, status):
 def order_confirmation():
     return render_template('credit_card.html')
 
+@app.route('/creditcard', methods = ['POST'])
+def creditcard():
+    return render_template('credit_card.html')
 if __name__ == "__main__":
     app.run(debug=True)
