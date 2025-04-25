@@ -168,21 +168,19 @@ def buyerhome():
     cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
     itemscategory = cursor.fetchall()
 
-    # Base query
+    # Build query and parameters
     sql_query = '''
         SELECT * FROM Product_Listings
         WHERE (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
     '''
     params = [f'%{query}%'] * 4 if query else ['%%'] * 4
 
-    # Cast text price to REAL after removing '$'
     if min_price:
-        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) >= ?"
-        params.append(min_price)
+        sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) >= ?"
+        params.append(float(min_price))
     if max_price:
-        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) <= ?"
-        params.append(max_price)
-
+        sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) <= ?"
+        params.append(float(max_price))
     cursor.execute(sql_query, params)
     products = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
@@ -201,7 +199,6 @@ def buyerhome():
         products=products,
         columns=columns
     )
-
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
     if 'email' not in session:
@@ -237,9 +234,43 @@ def buy_now():
     connection.close()
     return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
 
+
+@app.route('/leave_review', methods=['GET', 'POST'])
+def leave_review(): #buyers review
+    listing_id = request.args.get('listing_id')
+
+    if request.method == 'POST':
+        rating = request.form['rating']
+        comment = request.form['comment']
+        reviewer_email = session.get('email')  # Assumes you're using session auth
+
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+
+        # You might want to generate a unique review ID or use autoincrement
+        cursor.execute('''
+            INSERT INTO Reviews (Listing_ID, Reviewer_Email, Rating, Comment)
+            VALUES (?, ?, ?, ?)
+        ''', (listing_id, reviewer_email, rating, comment))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for('buyerhome'))
+
+    return render_template('leave_review.html', listing_id=listing_id)
+
 @app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():
-    return render_template('seller_reviews.html', seller_email=session["seller_email"])
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT business_name FROM Sellers WHERE email = ?', (session['seller_email'],))
+    business_name = cursor.fetchall()
+    cursor.execute('SELECT AVG(R.Rate) AS Average_Rate FROM Orders O JOIN Reviews R ON O.Order_ID = R.Order_ID WHERE O.Seller_Email = ? GROUP BY O.Seller_Email;', (session['seller_email'],))
+    rating = cursor.fetchall()
+    business_name = business_name[0][0]
+    rating = rating[0][0]
+    return render_template('seller_reviews.html', business_name=business_name, rating=rating)
 
 @app.route('/productreviews', methods=['GET', 'POST'])
 def productreviews():
