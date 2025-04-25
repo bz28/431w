@@ -213,8 +213,10 @@
                 </div>
 
                 <p>Description: {{ product[5] }}</p>
-                <button class="action-button">Reviews</button>
-                <button class="action-button">Delete</button>
+                <button><a href="{{ url_for('product_reviews', listing_id=product[0]) }}" class="action-button">Reviews
+                    </a></button>
+                <button><a href="{{ url_for('delete_product', listing_id=product[0]) }}"
+                        class="action-button">Delete</a></button>
             </div>
             {% endfor %}
             {% else %}

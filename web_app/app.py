@@ -584,6 +584,33 @@ def update_order_status(order_id):
     connection.close()
     
     return redirect(url_for('seller_orders'))
+@app.route('/delete_product/<listing_id>', methods=['GET'])
+def delete_product(listing_id):
+    if 'email' not in session or session['role'] != "Sellers":
+        return redirect(url_for('login'))
+    
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    
+    cursor.execute('DELETE FROM Product_Listings WHERE Listing_ID = ?', (listing_id,))
+    connection.commit()
+    connection.close()
+    
+    return redirect(url_for('seller_products'))
+
+@app.route('/product_reviews/<listing_id>', methods=['GET'])
+def product_reviews(listing_id):
+    if 'email' not in session or session['role'] != "Buyers":
+        return redirect(url_for('login'))
+    
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    
+    cursor.execute('SELECT * FROM Reviews WHERE Listing_ID = ?', (listing_id,))
+    reviews = cursor.fetchall()
+    
+    connection.close()
+    
 
 @app.route('/order_confirmation', methods = ['GET'])
 def order_confirmation():
