@@ -65,6 +65,7 @@
             <td>
                 <form action="{{ url_for('leave_review') }}" method="GET">
                     <input type="hidden" name="listing_id" value="{{ order['listing_id'] }}">
+                    <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
                     <button type="submit" class="review-button">Leave a Review</button>
                 </form>
             </td>
