@@ -207,11 +207,11 @@
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select id="status" name="status" required>
-                    <option value="2" {% if form_data and form_data.status=='Available' %}selected{% endif %}>
+                    <option value="1" {% if form_data and form_data.status=='Available' %}selected{% endif %}>
                         Available</option>
-                    <option value="0" {% if form_data and form_data.status=='Out of Stock' %}selected{% endif %}>Out of
+                    <option value="2" {% if form_data and form_data.status=='Out of Stock' %}selected{% endif %}>Out of
                         Stock</option>
-                    <option value="1" {% if form_data and form_data.status=='Inactive' %}selected{% endif %}>
+                    <option value="0" {% if form_data and form_data.status=='Inactive' %}selected{% endif %}>
                         Inactive
                     </option>
                 </select>

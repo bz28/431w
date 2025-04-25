@@ -137,6 +137,30 @@
             background-color: #0056b3;
         }
 
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 10px;
+            margin-top: 60px;
+            width: 100%;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        .stars {
+            color: #ffc107;
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        .review-count {
+            font-size: 12px;
+            color: #6c757d;
+        }
 
         @media (max-width: 600px) {
             .product-card {
@@ -179,7 +203,23 @@
                 <h3>{{ product[3] }}</h3>
                 <p>Price: {{ product[7] }}</p>
                 <p>Stock: {{ product[6] }} units</p>
-                <p>Status: {{ product[8] }}</p>
+                <p>Status: {{ 'Out of Stock' if product[8] == 2 else 'Available' if product[8] == 1 else 'Inactive' if
+                    product[8] == 0 else 'Unknown' }}</p>
+
+                <!-- Display rating -->
+                <div class="rating">
+                    <div class="stars">
+                        {% set rating = product[-2]|float %}
+                        {% if rating > 0 %}
+                        {% for i in range(1, 6) %}
+                        {% if i <= rating %} ★ {% elif i <=rating + 0.5 %} ★ {% else %} ☆ {% endif %} {% endfor %} <span
+                            class="review-count">({{ product[-1] }} reviews)</span>
+                            {% else %}
+                            <span>No ratings yet</span>
+                            {% endif %}
+                    </div>
+                </div>
+
                 <p>Description: {{ product[5] }}</p>
                 <button class="action-button">Reviews</button>
                 <button class="action-button">Edit</button>
@@ -191,6 +231,11 @@
             {% endif %}
         </div>
     </section>
+
+    <footer>
+        &copy; 2025 NittanyBusiness. All rights reserved.
+    </footer>
+
 
 </body>
 

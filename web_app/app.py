@@ -377,15 +377,54 @@ def seller_products():
     cursor = connection.cursor()
     
     # Assuming your table is called Product_listings
-    cursor.execute('SELECT * FROM Product_Listings WHERE seller_email = ?', (email,))
-    products = cursor.fetchall()
+    query = '''
+    SELECT 
+        p.*,
+        IFNULL(AVG(r.rate), 0) as average_rating,
+        COUNT(r.order_id) as review_count
+    FROM 
+        Product_Listings p, 
+        Orders o, 
+        Reviews r
+    WHERE 
+        p.listing_id = o.listing_id 
+        AND o.order_id = r.order_id
+        AND p.seller_email = ?
+    GROUP BY 
+        p.listing_id
+    '''
+    
+    cursor.execute(query, (email,))
+    products_with_reviews = cursor.fetchall()
+    
+    # Get products without reviews
+    query_no_reviews = '''
+    SELECT 
+        p.*,
+        0 as average_rating,
+        0 as review_count
+    FROM 
+        Product_Listings p
+    WHERE 
+        p.seller_email = ?
+        AND p.listing_id NOT IN (
+            SELECT DISTINCT o.listing_id 
+            FROM Orders o, Reviews r 
+            WHERE o.order_id = r.order_id
+        )
+    '''
+    
+    cursor.execute(query_no_reviews, (email,))
+    products_without_reviews = cursor.fetchall()
+    
+    # Combine the results
+    products = products_with_reviews + products_without_reviews
     
     # Get column names for reference
-    cursor.execute('PRAGMA table_info(Product_listings)')
-    columns = [column[1] for column in cursor.fetchall()]
+   
     
     connection.close()
-    return render_template('seller_products.html', products=products, columns=columns)
+    return render_template('seller_products.html', products=products)
 
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
