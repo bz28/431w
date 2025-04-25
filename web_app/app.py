@@ -204,16 +204,25 @@ def productreviews():
     connection = sql.connect('database.db')
     cursor = connection.cursor()
     # Given Listing_ID from Product_Listing
-    listing_id = session['listing_id']
-
-    # Get Seller Info
+    cursor.execute('SELECT seller_email FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    seller_email = cursor.fetchall()
+    session['seller_email'] = seller_email[0][0] # Get Seller Info
+    cursor.execute('SELECT business_name FROM Sellers WHERE email = ?', (session['seller_email'],))
+    business_name = cursor.fetchall()
+    cursor.execute('SELECT AVG(R.Rate) AS Average_Rate FROM Orders O JOIN Reviews R ON O.Order_ID = R.Order_ID WHERE O.Seller_Email = ? GROUP BY O.Seller_Email;', (session['seller_email'],))
+    rating = cursor.fetchall()
+    cursor.execute('SELECT product_price FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    product_price = cursor.fetchall()
     # Get Product info
     # Get Reviews
     # stores order info ()
     # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,Payment
+    session['business_name'] = business_name
+    session['rating'] = rating
+    session['product_price'] = product_price
     connection.commit()
     connection.close()
-    return render_template('product_reviews.html')
+    return render_template('product_reviews.html', business_name=business_name, rating=rating, product_price=product_price)
 
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
@@ -569,7 +578,7 @@ def update_order_status(order_id):
     return redirect(url_for('seller_orders'))
 
 @app.route('/order_confirmation', methods = ['GET'])
-def order_cofirmation():
+def order_confirmation():
     return render_template('credit_card.html')
 
 if __name__ == "__main__":
