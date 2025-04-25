@@ -324,7 +324,7 @@ def view_orders():
     for order in orders:
         order_list = dict(zip(columns, order))
         cursor.execute('SELECT * FROM Reviews WHERE Order_ID = ?', (order_list['order_id'],))
-        review_exists = cursor.fetchone() is not None
+        review_exists = cursor.fetchone() != None
         
         if review_exists:
             orderswith.append(order_list)
