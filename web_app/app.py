@@ -239,7 +239,15 @@ def buy_now():
 
 @app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():
-    return render_template('seller_reviews.html', seller_email=session["seller_email"])
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT business_name FROM Sellers WHERE email = ?', (session['seller_email'],))
+    business_name = cursor.fetchall()
+    cursor.execute('SELECT AVG(R.Rate) AS Average_Rate FROM Orders O JOIN Reviews R ON O.Order_ID = R.Order_ID WHERE O.Seller_Email = ? GROUP BY O.Seller_Email;', (session['seller_email'],))
+    rating = cursor.fetchall()
+    business_name = business_name[0][0]
+    rating = rating[0][0]
+    return render_template('seller_reviews.html', business_name=business_name, rating=rating)
 
 @app.route('/productreviews', methods=['GET', 'POST'])
 def productreviews():
