@@ -28,6 +28,7 @@ def login():
             role = check_role(email)
             if result and role == "Sellers":
                 session['email'] = email
+                session["seller_email"]=email
                 session['role'] = role
                 return redirect(url_for('sellerhome')) # Sends user to seller portal if it is a seller
             elif result and role == "Buyers":
@@ -72,7 +73,7 @@ def profile():
 @app.route('/selectrole', methods=['GET', 'POST'])
 def selectrole():
     if request.method == 'POST': # Redirect user based on role selection
-        role = request.form.get('role')  # Make sure your form has `name="role"`
+        role = request.form.get('role') # Make sure your form has `name="role"`
         if role == 'buyer':
             return redirect(url_for('buyerregistration'))
         elif role == 'seller':
@@ -238,7 +239,7 @@ def buy_now():
 
 @app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():
-    return render_template('seller_reviews.html')
+    return render_template('seller_reviews.html', seller_email=session["seller_email"])
 
 @app.route('/productreviews', methods=['GET', 'POST'])
 def productreviews():
@@ -449,10 +450,6 @@ def seller_orders():
     
     connection.close()
     return render_template('seller_orders.html', orders=orders, columns=columns)
-
-@app.route('/seller_reviews')
-def seller_reviews():
-    return render_template('seller_reviews.html')
 
 @app.route('/update_order_status/<order_id>/', methods=['GET'])
 def update_order_status(order_id):

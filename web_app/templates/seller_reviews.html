@@ -94,36 +94,10 @@
     </header>
 
     <section>
-        <h2>Seller: {{ seller['name'] }}</h2>
-
-        <div class="seller-details">
-            <p><strong>Email:</strong> {{ seller['email'] }}</p>
-            <p><strong>Store Name:</strong> {{ seller['store_name'] }}</p>
-            <p><strong>Description:</strong> {{ seller['description'] }}</p>
-        </div>
-
-        <h3>Reviews from all products</h3>
-        <table>
-            <thead>
-                <tr>
-                    {% for col in columns %}
-                    <th>{{ col }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for review in reviews %}
-                <tr>
-                    {% for field in review %}
-                    <td>{{ field }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+        <h1>Seller: {{seller_email}}</h1>
+        
         <div class="links-section" style="margin-top: 20px;">
-            <a href="{{ url_for('buyer_home') }}">Back to Home</a>
+            <a href="{{ url_for('sellerhome') }}">Back to Home</a>
         </div>
     </section>
 </body>
