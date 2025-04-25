@@ -262,29 +262,34 @@ def buy_now():
 
 
 @app.route('/leave_review', methods=['GET', 'POST'])
-def leave_review(): #buyers review
-    listing_id = request.args.get('listing_id')
+def leave_review():
 
+    listing_id = request.args.get('listing_id')
+    order_id = request.args.get('order_id')
+    session['listing_id'] = listing_id
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT product_title FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    product_title = cursor.fetchall()
+    cursor.execute('SELECT seller_email FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    seller_email = cursor.fetchall()
+    session['seller_email'] = seller_email[0][0] 
+    cursor.execute('SELECT business_name FROM Sellers WHERE email = ?', (session['seller_email'],))
+    business_name = cursor.fetchall()
+
+    
     if request.method == 'POST':
         rating = request.form['rating']
         comment = request.form['comment']
-        reviewer_email = session.get('email')  # Assumes you're using session auth
-
-        connection = sql.connect('database.db')
-        cursor = connection.cursor()
-
-        # You might want to generate a unique review ID or use autoincrement
-        cursor.execute('''
-            INSERT INTO Reviews (Listing_ID, Reviewer_Email, Rating, Comment)
-            VALUES (?, ?, ?, ?)
-        ''', (listing_id, reviewer_email, rating, comment))
-
+        # Insert review into database
+        cursor.execute('INSERT INTO Reviews (order_id, rate, review_desc) VALUES (?, ?, ?)', 
+                      (order_id, rating, comment))
         connection.commit()
         connection.close()
-
         return redirect(url_for('buyerhome'))
-
-    return render_template('leave_review.html', listing_id=listing_id)
+    
+    connection.close()
+    return render_template('leave_review.html', product_title=product_title[0][0], listing_id=listing_id, order_id=order_id, business_name = business_name[0][0])
 
 @app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():

@@ -51,8 +51,10 @@
     <form method="POST">
 
         <div class="product-name">
-            {% if product %}
-                Reviewing: {{ product[0] }}
+            {% if product_title %}
+                {% if business_name %}
+                    Reviewing: {{ product_title }} from {{business_name}}
+                {% endif %}
             {% endif %}
         </div>
 
