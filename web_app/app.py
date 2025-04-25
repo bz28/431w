@@ -317,11 +317,23 @@ def view_orders():
     cursor.execute('SELECT * FROM Orders WHERE Buyer_Email = ?', (user_email,))
     orders = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
+    
+
+    orderswith= []
+    orderswithout= []
+    for order in orders:
+        order_list = dict(zip(columns, order))
+        cursor.execute('SELECT * FROM Reviews WHERE Order_ID = ?', (order_list['order_id'],))
+        review_exists = cursor.fetchone() is not None
+        
+        if review_exists:
+            orderswith.append(order_list)
+        else:
+            orderswithout.append(order_list)
+
     connection.close()
 
-    order_list = [dict(zip(columns, order)) for order in orders]
-
-    return render_template('buyer_orders.html', orders=order_list)
+    return render_template('buyer_orders.html', orderswith=orderswith, orderswithout=orderswithout)
 
 @app.route('/helpdeskhome')
 def helpdeskhome():
