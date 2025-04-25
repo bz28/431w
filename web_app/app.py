@@ -168,21 +168,19 @@ def buyerhome():
     cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
     itemscategory = cursor.fetchall()
 
-    # Base query
+    # Build query and parameters
     sql_query = '''
         SELECT * FROM Product_Listings
         WHERE (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
     '''
     params = [f'%{query}%'] * 4 if query else ['%%'] * 4
 
-    # Cast text price to REAL after removing '$'
     if min_price:
-        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) >= ?"
-        params.append(min_price)
+        sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) >= ?"
+        params.append(float(min_price))
     if max_price:
-        sql_query += " AND CAST(REPLACE(Product_Price, '$', '') AS REAL) <= ?"
-        params.append(max_price)
-
+        sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) <= ?"
+        params.append(float(max_price))
     cursor.execute(sql_query, params)
     products = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
@@ -201,7 +199,6 @@ def buyerhome():
         products=products,
         columns=columns
     )
-
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
     if 'email' not in session:
