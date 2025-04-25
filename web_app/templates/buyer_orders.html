@@ -25,6 +25,17 @@
         h2 {
             color: #333;
         }
+        .review-button {
+            background-color: #00448d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .review-button:hover {
+            background-color: #003366;
+        }
     </style>
 </head>
 <body>
@@ -40,6 +51,7 @@
             <th>Date</th>
             <th>Quantity</th>
             <th>Payment</th>
+            <th>Review</th>
         </tr>
         {% for order in orders %}
         <tr>
@@ -50,13 +62,18 @@
             <td>{{ order['date'] }}</td>
             <td>{{ order['quantity'] }}</td>
             <td>${{ order['payment'] }}</td>
+            <td>
+                <form action="{{ url_for('leave_review') }}" method="GET">
+                    <input type="hidden" name="listing_id" value="{{ order['listing_id'] }}">
+                    <button type="submit" class="review-button">Leave a Review</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
     <p>You haven't placed any orders yet.</p>
     {% endif %}
-
 
     <a href="{{ url_for('buyerhome') }}">Return to Buyer Home</a>
 

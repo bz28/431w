@@ -234,6 +234,32 @@ def buy_now():
     connection.close()
     return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
 
+
+@app.route('/leave_review', methods=['GET', 'POST'])
+def leave_review(): #buyers review
+    listing_id = request.args.get('listing_id')
+
+    if request.method == 'POST':
+        rating = request.form['rating']
+        comment = request.form['comment']
+        reviewer_email = session.get('email')  # Assumes you're using session auth
+
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+
+        # You might want to generate a unique review ID or use autoincrement
+        cursor.execute('''
+            INSERT INTO Reviews (Listing_ID, Reviewer_Email, Rating, Comment)
+            VALUES (?, ?, ?, ?)
+        ''', (listing_id, reviewer_email, rating, comment))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for('buyerhome'))
+
+    return render_template('leave_review.html', listing_id=listing_id)
+
 @app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():
     return render_template('seller_reviews.html', seller_email=session["seller_email"])
