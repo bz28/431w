@@ -150,25 +150,27 @@ def helpdeskregistration():
 def sellerhome():
     return render_template('seller_homepage.html')
 
-
 @app.route('/buyerhome', methods=['GET', 'POST'])
 def buyerhome():
     query = request.args.get('query', '').strip()
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
+    open_path = request.args.get('open_path')  # NEW - track expanded category
+    selected_category = request.args.get('selected_category')  # NEW - filter category
 
     connection = sql.connect('database.db')
     cursor = connection.cursor()
 
-    # Get categories
-    cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
-    root_categories = cursor.fetchall()
-    cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
-    subcategories = cursor.fetchall()
-    cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
-    itemscategory = cursor.fetchall()
+    cursor.execute("SELECT parent_category, category_name FROM Categories")
+    category_rows = cursor.fetchall()
 
-    # Build query and parameters
+    from collections import defaultdict
+    categories = defaultdict(list)
+    for parent, child in category_rows:
+        parent = parent.strip() if parent else 'Root'
+        child = child.strip()
+        categories[parent].append(child)
+
     sql_query = '''
         SELECT * FROM Product_Listings
         WHERE Status = 1
@@ -176,30 +178,35 @@ def buyerhome():
     '''
     params = [f'%{query}%'] * 4 if query else ['%%'] * 4
 
+    if selected_category:
+        sql_query += " AND Category = ?"
+        params.append(selected_category)
+
     if min_price:
         sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) >= ?"
         params.append(float(min_price))
     if max_price:
         sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) <= ?"
         params.append(float(max_price))
+
     cursor.execute(sql_query, params)
     products = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
 
     connection.close()
-    
-    if request.method == 'POST': # Redirect user based on role selection
+
+    if request.method == 'POST':
         session['listing_id'] = request.form.get('listing_id')
         return redirect(url_for('productreviews'))
 
     return render_template(
         'buyer_homepage.html',
-        root_categories=root_categories,
-        subcategories=subcategories,
-        itemscategory=itemscategory,
         products=products,
-        columns=columns
+        columns=columns,
+        categories=dict(categories),
+        open_path=open_path,
     )
+
 @app.route('/productreviews', methods=['GET', 'POST'])
 def productreviews():
     connection = sql.connect('database.db')
