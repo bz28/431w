@@ -171,7 +171,8 @@ def buyerhome():
     # Build query and parameters
     sql_query = '''
         SELECT * FROM Product_Listings
-        WHERE (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
+        WHERE Status = 1
+        AND (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
     '''
     params = [f'%{query}%'] * 4 if query else ['%%'] * 4
 
