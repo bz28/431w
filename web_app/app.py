@@ -250,12 +250,12 @@ def buy_now():
 
     if result:
         seller_email, product_price, current_quantity = result
-        quantity_purchased = 1 
+        quantity_purchased = 1  # Fixed quantity
 
         if current_quantity is None or current_quantity <= 0:
-            # Handle if no stock left
             connection.close()
-            return "This item is out of stock."
+            # Render a special "Out of Stock" page
+            return render_template('out_of_stock.html')
 
         payment = int(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
 
@@ -281,6 +281,8 @@ def buy_now():
     connection.close()
 
     return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
+
+
 @app.route('/leave_review', methods=['GET', 'POST'])
 def leave_review():
 
