@@ -240,27 +240,47 @@ def buy_now():
     buyer_email = session['email']
     listing_id = session['listing_id']
     order_date = datetime.now().strftime('%Y/%m/%d')
+
     connection = sql.connect('database.db')
     cursor = connection.cursor()
+
     # Get product info
-    cursor.execute("SELECT seller_email, product_price FROM Product_Listings WHERE listing_id = ?", (listing_id,))
+    cursor.execute("SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?", (listing_id,))
     result = cursor.fetchone()
+
     if result:
-        seller_email, product_price = result
-        quantity = 1  # Fixed quantity
-        payment = int(product_price.replace('$', '')) * quantity
+        seller_email, product_price, current_quantity = result
+        quantity_purchased = 1 
+
+        if current_quantity is None or current_quantity <= 0:
+            # Handle if no stock left
+            connection.close()
+            return "This item is out of stock."
+
+        payment = int(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
+
         # Generate unique order_id
         order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 3)
+
         # Insert into Orders table
         cursor.execute('''
             INSERT INTO Orders (Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity, payment))
+        ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity_purchased, payment))
+
+        # Update Product quantity (decrease by 1)
+        new_quantity = current_quantity - quantity_purchased
+        cursor.execute('''
+            UPDATE Product_Listings
+            SET quantity = ?
+            WHERE listing_id = ?
+        ''', (new_quantity, listing_id))
+
         connection.commit()
-        connection.close()
+
+    connection.close()
+
     return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
-
-
 @app.route('/leave_review', methods=['GET', 'POST'])
 def leave_review():
 
