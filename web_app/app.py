@@ -223,6 +223,8 @@ def productreviews():
     product_price = cursor.fetchall()
     cursor.execute('SELECT product_title FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
     product_title = cursor.fetchall()
+    cursor.execute('SELECT Quantity FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    Quantity = cursor.fetchall()
 
     # Get Reviews
     # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,
@@ -236,9 +238,10 @@ def productreviews():
     session['product_price'] = product_price[0][0]
     session['product_title'] = product_title[0][0]
     session['reviews'] = reviews
+    session['Quantity'] = Quantity[0][0]
     connection.commit()
     connection.close()
-    return render_template('product_reviews.html', reviews=session['reviews'], business_name=session['business_name'], rating=session['rating'], product_price=session['product_price'], product_title=session['product_title'])
+    return render_template('product_reviews.html', reviews=session['reviews'], business_name=session['business_name'], rating=session['rating'], product_price=session['product_price'], product_title=session['product_title'], Quantity = session['Quantity'])
 
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
