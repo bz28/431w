@@ -139,12 +139,11 @@
         </tbody>
       </table>
     </div>
-
-    <form action="{{ url_for('buy_now') }}" method="get">
-      <button type="submit">Proceed To Purchase</button>
-    </form>
         
     <div class="links-section">
+      <form action="{{ url_for('buy_now') }}" method="get">
+        <button type="submit">Proceed To Purchase</button>
+      </form>
       <a href="{{ url_for('buyerhome') }}">
         <button type="button">Back To Home</button>
       </a>
