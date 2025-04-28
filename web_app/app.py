@@ -249,10 +249,12 @@ def buy_now():
         return redirect(url_for('login'))
 
     buyer_email = session['email']
-    listing_id = session['listing_id']
+    listing_id = session.get('listing_id')
     order_date = datetime.now().strftime('%Y/%m/%d')
 
-    #used for credit card where it takes form and if save card is selected puts it into the database
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+
     if request.method == 'POST':
         credit_card_num = request.form.get('Cnum')
         card_type = request.form.get('Ctype')
@@ -261,55 +263,65 @@ def buy_now():
         security_code = request.form.get('Ccode')
         save_card = request.form.get('save_card')
 
-        if save_card != None:
-            connection = sql.connect('database.db')
-            cursor = connection.cursor()
-            cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_num, card_type, expire_month, expire_year, security_code, buyer_email))
+        if save_card:
+            cursor.execute('''
+                INSERT OR REPLACE INTO Credit_Cards 
+                (credit_card_num, card_type, expire_month, expire_year, security_code, Owner_email)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (credit_card_num, card_type, expire_month, expire_year, security_code, buyer_email))
             connection.commit()
-            connection.close()
 
-    connection = sql.connect('database.db')
-    cursor = connection.cursor()
+        # Handle placing order
+        cursor.execute("SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?", (listing_id,))
+        result = cursor.fetchone()
 
+        if result:
+            seller_email, product_price, current_quantity = result
+            quantity_purchased = 1
 
-    # Get product info
-    cursor.execute("SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?", (listing_id,))
-    result = cursor.fetchone()
+            if current_quantity is None or current_quantity <= 0:
+                connection.close()
+                return render_template('out_of_stock.html')
 
-    if result:
-        seller_email, product_price, current_quantity = result
-        quantity_purchased = 1  # Fixed quantity
+            payment = int(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
+            order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 3)
 
-        if current_quantity is None or current_quantity <= 0:
-            connection.close()
-            # Render a special "Out of Stock" page
-            return render_template('out_of_stock.html')
+            cursor.execute('''
+                INSERT INTO Orders (Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity_purchased, payment))
 
-        payment = int(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
+            new_quantity = current_quantity - quantity_purchased
+            cursor.execute('''
+                UPDATE Product_Listings
+                SET quantity = ?
+                WHERE listing_id = ?
+            ''', (new_quantity, listing_id))
 
-        # Generate unique order_id
-        order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 3)
+            connection.commit()
 
-        # Insert into Orders table
-        cursor.execute('''
-            INSERT INTO Orders (Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity_purchased, payment))
+        connection.close()
 
-        # Update Product quantity (decrease by 1)
-        new_quantity = current_quantity - quantity_purchased
-        cursor.execute('''
-            UPDATE Product_Listings
-            SET quantity = ?
-            WHERE listing_id = ?
-        ''', (new_quantity, listing_id))
+        # 🚨 IMPORTANT: After POST, redirect!
+        return redirect(url_for('buyer_placeorder', listing_id=listing_id))
+    
+    
 
-        connection.commit()
+    # GET request (show form)
+    cursor.execute('''
+        SELECT credit_card_num, card_type, expire_month, expire_year, security_code
+        FROM Credit_cards
+        WHERE Owner_email = ?
+    ''', (buyer_email,))
+    saved_card = cursor.fetchone()
 
     connection.close()
+    return render_template('credit_card.html', saved_card=saved_card)
 
-    return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
-
+@app.route('/buyer_placeorder')
+def buyer_placeorder():
+    listing_id = request.args.get('listing_id')
+    return render_template('buyer_placeorder.html', listing_id=listing_id)
 
 @app.route('/leave_review', methods=['GET', 'POST'])
 def leave_review():
@@ -678,9 +690,24 @@ def product_reviews(listing_id):
     connection.close()
     
 
-@app.route('/order_confirmation', methods = ['GET'])
+@app.route('/order_confirmation', methods=['GET'])
 def order_confirmation():
-    return render_template('credit_card.html')
+    if 'email' not in session:
+        return redirect(url_for('login'))
+
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+
+    cursor.execute('''
+        SELECT credit_card_num, card_type, expire_month, expire_year, security_code
+        FROM Credit_cards
+        WHERE Owner_email = ?
+    ''', (session['email'],))
+    saved_card = cursor.fetchone()
+
+    connection.close()
+
+    return render_template('credit_card.html', saved_card=saved_card)
 
 @app.route('/creditcard', methods=['GET', 'POST'])
 def creditcard():
