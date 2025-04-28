@@ -100,11 +100,9 @@
             border: 1px solid #ccc;
             z-index: 1;
         }
-        /* Hover shows subcategories */
         .category:hover > .subcategory {
             display: block;
         }
-        /* Click (checkbox checked) keeps subcategories open */
         .toggle-subcat:checked + .category-item + .subcategory {
             display: block;
         }
@@ -173,7 +171,6 @@
                                                             <input type="checkbox" class="toggle-subcat" id="toggle-{{ subsubcat }}">
                                                             <label class="category-item" for="toggle-{{ subsubcat }}">{{ subsubcat }}</label>
                                                             <div class="subcategory">
-                                                                <!-- You could go deeper here if needed -->
                                                             </div>
                                                         </div>
                                                     {% else %}
