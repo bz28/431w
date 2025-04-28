@@ -217,7 +217,7 @@
 
                 <p>Description: {{ product[5] }}</p>
                 <div class="button-group">
-                    <form action="{{ url_for('product_reviews', listing_id=product[1]) }}" method="get"
+                    <form action="{{ url_for('seller_products_reviews', listing_id=product[1]) }}" method="get"
                         style="display: inline;">
                         <button type="submit" class="action-button">Reviews</button>
                     </form>

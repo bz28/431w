@@ -670,6 +670,36 @@ def delete_product(listing_id):
     
     return redirect(url_for('seller_products'))
 
+
+@app.route('/seller_products_reviews/<listing_id>', methods=['GET'])
+def seller_products_reviews(listing_id):
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    email = session['email']
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    
+    # Assuming your table is called Product_listings
+    query = '''
+    SELECT 
+        r.Review_Desc,
+        r.Rate,
+        o.date
+    FROM 
+        Orders o,
+        Reviews r
+    WHERE 
+        o.order_id = r.order_id
+        AND o.listing_id = ?
+    '''
+    
+    cursor.execute(query, (listing_id,))
+    reviews = cursor.fetchall()
+    connection.close()
+    return render_template('seller_products_reviews.html', reviews=reviews)
+
+
 @app.route('/product_reviews/<listing_id>', methods=['GET'])
 def product_reviews(listing_id):
     if 'email' not in session or session['role'] != "Buyers":
