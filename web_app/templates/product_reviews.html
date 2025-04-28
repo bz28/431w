@@ -144,12 +144,13 @@
       </table>
     </div>
 
+    <form action="{{ url_for('buy_now') }}" method="get">
+      <button type="submit">Proceed To Purchase</button>
+    </form>
+        
     <div class="links-section">
-      <a href="{{ url_for('order_confirmation') }}">
-        <button type="submit">Proceed To Purchase</button>
-      </a>
       <a href="{{ url_for('buyerhome') }}">
-        <button type="submit">Back To Home</button>
+        <button type="button">Back To Home</button>
       </a>
     </div>
   </section>
