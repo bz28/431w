@@ -267,7 +267,7 @@ def buy_now():
         expire_year = request.form.get('Cexpy')
         security_code = request.form.get('Ccode')
         save_card = request.form.get('save_card')
-        quantity_purchased = int(request.form.get('quantity', 1))  # <--- NEW: get quantity input
+        quantity_purchased = int(request.form.get('quantity', 1))  # Get quantity input
 
         if save_card:
             cursor.execute('''
@@ -278,7 +278,7 @@ def buy_now():
             connection.commit()
 
         # Handle placing order
-        cursor.execute("SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?", (listing_id,))
+        cursor.execute('SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?', (listing_id,))
         result = cursor.fetchone()
 
         if result:
@@ -311,6 +311,13 @@ def buy_now():
                     SET quantity = ?
                     WHERE listing_id = ?
                 ''', (new_quantity, listing_id))
+
+            # Update seller's balance
+            cursor.execute('''
+                UPDATE Sellers
+                SET balance = balance + ?
+                WHERE email = ?
+            ''', (payment, seller_email))
 
             connection.commit()
 
