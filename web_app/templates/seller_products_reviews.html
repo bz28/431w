@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Reviews</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .top-right-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .top-right-links a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .product-details h1 {
+            font-size: 18px;
+            margin: 5px 0;
+            font-weight: normal;
+        }
+
+        .product-details h3 {
+            font-size: 32px;
+            margin-top: 30px;
+            color: #222;
+        }
+
+        .review-details h1 {
+            font-size: 24px;
+            margin: 40px 0 10px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .links-section {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .links-section a {
+            text-decoration: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            .links-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-right-links {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2>NittanyBusiness</h2>
+        <div class="top-right-links">
+            <a href="{{ url_for('profile') }}">View Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
+
+    <section>
+        <div class="product-details">
+            <h1>{{ business_name }}</h1>
+
+            <h3>{{ product_title }}</h3>
+        </div>
+
+        <div class="review-details">
+            <h1>Reviews:</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Date</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.1 }}</td>
+                        <td>{{ review.0 }}</td>
+                        <td>{{ review.2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="links-section">
+            <a href="{{ url_for('sellerhome') }}">
+                <button type="submit">Back To Home</button>
+            </a>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -94,15 +94,26 @@
             margin: 8px 0;
         }
 
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-group form {
+            margin: 0;
+        }
+
         .action-button {
             background-color: #007bff;
             color: white;
             border: none;
             padding: 6px 12px;
-            margin: 5px 5px 5px 0;
             cursor: pointer;
             border-radius: 4px;
             font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .action-button:hover {
@@ -137,13 +148,6 @@
             background-color: #0056b3;
         }
 
-        footer {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            margin-top: 60px;
-            width: 100%;
-        }
 
         .rating {
             display: flex;
@@ -198,7 +202,6 @@
                 <p>Status: {{ 'Out of Stock' if product[8] == 2 else 'Available' if product[8] == 1 else 'Inactive' if
                     product[8] == 0 else 'Unknown' }}</p>
 
-                <!-- Display rating -->
                 <div class="rating">
                     <div class="stars">
                         {% set rating = product[-2]|float %}
@@ -213,10 +216,17 @@
                 </div>
 
                 <p>Description: {{ product[5] }}</p>
-                <button><a href="{{ url_for('product_reviews', listing_id=product[0]) }}" class="action-button">Reviews
-                    </a></button>
-                <button><a href="{{ url_for('delete_product', listing_id=product[0]) }}"
-                        class="action-button">Delete</a></button>
+                <div class="button-group">
+                    <form action="{{ url_for('seller_products_reviews', listing_id=product[1]) }}" method="get"
+                        style="display: inline;">
+                        <button type="submit" class="action-button">Reviews</button>
+                    </form>
+
+                    <form action="{{ url_for('delete_product', listing_id=product[1]) }}" method="post"
+                        style="display: inline;">
+                        <button type="submit" class="action-button">Delete</button>
+                    </form>
+                </div>
             </div>
             {% endfor %}
             {% else %}
@@ -224,11 +234,6 @@
             {% endif %}
         </div>
     </section>
-
-    <footer>
-        &copy; 2025 NittanyBusiness. All rights reserved.
-    </footer>
-
 
 </body>
 

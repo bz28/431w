@@ -100,11 +100,9 @@
             border: 1px solid #ccc;
             z-index: 1;
         }
-        /* Hover shows subcategories */
         .category:hover > .subcategory {
             display: block;
         }
-        /* Click (checkbox checked) keeps subcategories open */
         .toggle-subcat:checked + .category-item + .subcategory {
             display: block;
         }
@@ -173,7 +171,6 @@
                                                             <input type="checkbox" class="toggle-subcat" id="toggle-{{ subsubcat }}">
                                                             <label class="category-item" for="toggle-{{ subsubcat }}">{{ subsubcat }}</label>
                                                             <div class="subcategory">
-                                                                <!-- You could go deeper here if needed -->
                                                             </div>
                                                         </div>
                                                     {% else %}
@@ -195,18 +192,24 @@
         <table>
             <thead>
                 <tr>
-                    {% for column in columns %}
-                    <th>{{ column }}</th>
-                    {% endfor %}
+                    <th>Category</th>
+                    <th>Product Title</th>
+                    <th>Product Name</th>
+                    <th>Product Description</th>
+                    <th>Quantity</th>
+                    <th>Product Price</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in products %}
                 <tr>
-                    {% for value in row %}
-                    <td>{{ value }}</td>
-                    {% endfor %}
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>{{ row[6] }}</td>
+                    <td>{{ row[7] }}</td>
                     <td>
                         <form action="{{ url_for('buyerhome') }}" method="post">
                             <input type="hidden" name="listing_id" value="{{ row[1] }}">
