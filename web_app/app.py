@@ -613,12 +613,9 @@ def seller_orders():
     cursor.execute('SELECT * FROM Orders WHERE seller_email = ?', (email,))
     orders = cursor.fetchall()
     
-    # Get column names for reference
-    cursor.execute('PRAGMA table_info(Orders)')
-    columns = [column[1] for column in cursor.fetchall()]
     
     connection.close()
-    return render_template('seller_orders.html', orders=orders, columns=columns)
+    return render_template('seller_orders.html', orders=orders)
 
 @app.route('/update_order_status/<order_id>', methods=['GET'])
 def update_order_status(order_id):

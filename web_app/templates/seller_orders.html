@@ -156,9 +156,14 @@
         {% if orders %}
         <table class="orders-table">
             <tr>
-                {% for column in columns %}
-                <th>{{ column }}</th>
-                {% endfor %}
+
+                <th> order_id </th>
+                <th> seller_email </th>
+                <th> listing_id </th>
+                <th> buyer_email </th>
+                <th>date </th>
+                <th> quantity </th>
+                <th> payment </th>
                 <th>Actions</th>
             </tr>
             {% for order in orders %}
