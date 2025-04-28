@@ -358,7 +358,10 @@ def sellerreviews():
     cursor.execute('SELECT AVG(R.Rate) AS Average_Rate FROM Orders O JOIN Reviews R ON O.Order_ID = R.Order_ID WHERE O.Seller_Email = ? GROUP BY O.Seller_Email;', (session['seller_email'],))
     rating = cursor.fetchall()
     business_name = business_name[0][0]
-    rating = rating[0][0]
+    if (len(rating) == 0):
+        session['rating'] = "No reviews"
+    else:
+        session['rating'] = rating[0][0]
     connection.commit()
     connection.close()
     return render_template('seller_reviews.html', business_name=business_name, rating=rating)

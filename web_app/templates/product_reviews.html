@@ -6,38 +6,36 @@
   <title>Product Reviews</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f9f9f9;
-      color: #333;
-    }
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
 
     header {
-      background-color: #003366;
-      color: white;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+            background-color: #00448d;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            position: relative;
+        }
 
-    header h2 {
-      margin: 0;
-      font-size: 24px;
+    .top-right-links {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
     }
-
     .top-right-links a {
       color: white;
       text-decoration: none;
-      margin-left: 20px;
-      font-size: 16px;
+      margin-left: 15px;
     }
-
     .top-right-links a:hover {
       text-decoration: underline;
     }
-
     section {
       max-width: 800px;
       margin: 30px auto;
@@ -74,7 +72,7 @@
     }
 
     button {
-      background-color: #007bff;
+      background-color: #00448d;
       color: white;
       padding: 10px 20px;
       border: none;
@@ -84,14 +82,12 @@
       transition: background-color 0.2s ease-in-out;
     }
 
-    button:hover {
-      background-color: #0056b3;
-    }
-
     @media (max-width: 600px) {
       .links-section {
-        flex-direction: column;
-        align-items: center;
+        margin-top: 30px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
       }
 
       header {
