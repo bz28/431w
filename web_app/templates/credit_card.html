@@ -98,15 +98,16 @@
     </header>
 
     <h2>Enter your information</h2>
-        <form action="{{ url_for('creditcard') }}" method="post">
+        <form action="{{ url_for('buy_now') }}" method="post">
             <input type="text" name="Cnum" placeholder="Credit Card Number" required>
             <input type="text" name="Ctype" placeholder="Card Type" required>
             <input type="text" name="Cexpm" placeholder="Expiration Month" required>
             <input type="text" name="Cexpy" placeholder="Expiration Year" required>
             <input type="text" name="Ccode" placeholder="Security Code" required>
-            <button type="submit">Save Information for Future Payments</button>
-        </form>
-        <form action="{{ url_for('buy_now') }}" method="post">
+            <div>
+                <input type="checkbox" name="save_card" id="save_card">
+                <label for="save_card">Save information for future payments</label>
+            </div>
             <button type="submit">Purchase</button>
         </form>
         <div>

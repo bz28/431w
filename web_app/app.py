@@ -252,8 +252,23 @@ def buy_now():
     listing_id = session['listing_id']
     order_date = datetime.now().strftime('%Y/%m/%d')
 
+    if request.method == 'POST':
+        credit_card_number = request.form.get('Cnum')
+        card_type = request.form.get('Ctype')
+        expiration_month = request.form.get('Cexpm')
+        expiration_year = request.form.get('Cexpy')
+        security_code = request.form.get('Ccode')
+
+        if 'save_card' in request.form:
+            connection = sql.connect('database.db')
+            cursor = connection.cursor()
+            cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_number, card_type, expiration_month, expiration_year, security_code, buyer_email))
+            connection.commit()
+            connection.close()
+
     connection = sql.connect('database.db')
     cursor = connection.cursor()
+
 
     # Get product info
     cursor.execute("SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?", (listing_id,))
@@ -640,21 +655,6 @@ def order_confirmation():
 
 @app.route('/creditcard', methods=['GET', 'POST'])
 def creditcard():
-    email = session['email']
-    if request.method == 'POST':
-        credit_card_number = request.form.get('Cnum')
-        card_type = request.form.get('Ctype')
-        expiration_month = request.form.get('Cexpm')
-        expiration_year = request.form.get('Cexpy')
-        security_code = request.form.get('Ccode')
-
-        connection = sql.connect('database.db')
-        cursor = connection.cursor()
-        cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_number, card_type, expiration_month, expiration_year, security_code, email))
-        connection.commit()
-        connection.close()
-
-
 
     return render_template('credit_card.html')
 if __name__ == "__main__":
