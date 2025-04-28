@@ -252,18 +252,19 @@ def buy_now():
     listing_id = session['listing_id']
     order_date = datetime.now().strftime('%Y/%m/%d')
 
+    #used for credit card where it takes form and if save card is selected puts it into the database
     if request.method == 'POST':
-        credit_card_number = request.form.get('Cnum')
+        credit_card_num = request.form.get('Cnum')
         card_type = request.form.get('Ctype')
-        expiration_month = request.form.get('Cexpm')
-        expiration_year = request.form.get('Cexpy')
+        expire_month = request.form.get('Cexpm')
+        expire_year = request.form.get('Cexpy')
         security_code = request.form.get('Ccode')
         save_card = request.form.get('save_card')
 
         if save_card != None:
             connection = sql.connect('database.db')
             cursor = connection.cursor()
-            cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_number, card_type, expiration_month, expiration_year, security_code, buyer_email))
+            cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_num, card_type, expire_month, expire_year, security_code, buyer_email))
             connection.commit()
             connection.close()
 
