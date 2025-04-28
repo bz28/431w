@@ -73,7 +73,7 @@ def profile():
 @app.route('/selectrole', methods=['GET', 'POST'])
 def selectrole():
     if request.method == 'POST': # Redirect user based on role selection
-        role = request.form.get('role') # Make sure your form has `name="role"`
+        role = request.form.get('role') 
         if role == 'buyer':
             return redirect(url_for('buyerregistration'))
         elif role == 'seller':
@@ -155,8 +155,8 @@ def buyerhome():
     query = request.args.get('query', '').strip()
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
-    open_path = request.args.get('open_path')  # NEW - track expanded category
-    selected_category = request.args.get('selected_category')  # NEW - filter category
+    open_path = request.args.get('open_path')  # track expanded category
+    selected_category = request.args.get('selected_category')  # filter category
 
     connection = sql.connect('database.db')
     cursor = connection.cursor()
@@ -302,12 +302,9 @@ def buy_now():
 
         connection.close()
 
-        # 🚨 IMPORTANT: After POST, redirect!
         return redirect(url_for('buyer_placeorder', listing_id=listing_id))
     
     
-
-    # GET request (show form)
     cursor.execute('''
         SELECT credit_card_num, card_type, expire_month, expire_year, security_code
         FROM Credit_cards
