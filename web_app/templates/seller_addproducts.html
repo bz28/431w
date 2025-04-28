@@ -237,57 +237,6 @@
             <div class="form-group">
                 <input type="hidden" id="category" name="category" value="{{ form_data.category if form_data else '' }}"
                     required>
-                <div id="selected-category-display" style="margin-bottom: 10px; font-weight: bold;">
-                    {% if form_data and form_data.category %}
-                    Selected Category: {{ form_data.category }}
-                    {% else %}
-                    Please select a category
-                    {% endif %}
-                </div>
-
-                <div class="dropdown">
-                    <button type="button" class="dropdown-btn">Categories</button>
-                    <div class="dropdown-content">
-                        {% for category in categories['Root'] %}
-                        <div class="category">
-                            <input type="checkbox" class="toggle-subcat" id="toggle-{{ category }}">
-                            <label class="category-item" for="toggle-{{ category }}" onclick="document.getElementById('category').value='{{ category }}'; 
-                                            document.getElementById('selected-category-display').textContent='Selected Category: {{ category }}';
-                                            return false;">{{ category }}</label>
-                            {% if categories.get(category) %}
-                            <div class="subcategory">
-                                {% for subcat in categories[category] %}
-                                <div class="category">
-                                    <input type="checkbox" class="toggle-subcat" id="toggle-{{ subcat }}">
-                                    <label class="category-item" for="toggle-{{ subcat }}" onclick="document.getElementById('category').value='{{ subcat }}'; 
-                                                    document.getElementById('selected-category-display').textContent='Selected Category: {{ subcat }}';
-                                                    return false;">{{ subcat }}</label>
-                                    {% if categories.get(subcat) %}
-                                    <div class="subcategory">
-                                        {% for subsubcat in categories[subcat] %}
-                                        {% if categories.get(subsubcat) %}
-                                        <div class="category">
-                                            <input type="checkbox" class="toggle-subcat" id="toggle-{{ subsubcat }}">
-                                            <label class="category-item" for="toggle-{{ subsubcat }}" onclick="document.getElementById('category').value='{{ subsubcat }}'; 
-                                                            document.getElementById('selected-category-display').textContent='Selected Category: {{ subsubcat }}';
-                                                            return false;">{{ subsubcat }}</label>
-                                            <div class="subcategory">
-                                            </div>
-                                        </div>
-                                        {% else %}
-                                        <a class="category-item" href="#" onclick="document.getElementById('category').value='{{ subsubcat }}'; 
-                                                    document.getElementById('selected-category-display').textContent='Selected Category: {{ subsubcat }}';
-                                                    return false;">{{ subsubcat }}</a>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
                         <div class="category">
                             <a class="category-item" href="{{ url_for('add_category') }}">Add New Category</a>
                         </div>
