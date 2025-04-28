@@ -535,85 +535,117 @@ def seller_products():
     connection.close()
     return render_template('seller_products.html', products=products)
 
+def get_categories():
+   connection = sql.connect('database.db')
+   cursor = connection.cursor()
+
+
+   cursor.execute("SELECT parent_category, category_name FROM Categories")
+   category_rows = cursor.fetchall()
+
+
+   from collections import defaultdict
+   categories = defaultdict(list)
+   for parent, child in category_rows:
+       parent = parent.strip() if parent else 'Root'
+       child = child.strip()
+       categories[parent].append(child)
+  
+   connection.close()
+   return dict(categories)  # Return the categories dictionary
+
+
+
+
+
+
+
 @app.route('/add_product', methods=['GET', 'POST'])
 def add_product():
-    if 'email' not in session:
-        return redirect(url_for('login'))
-    
-    # Initialize variables for template
-    show_new_category = False
-    form_data = {}
-    error = None
-    
-    if request.method == 'POST':
-        # Get the seller's email from the session
-        seller_email = session['email']
-        
-        # Get form data
-        product_title = request.form['product_title']
-        product_name = request.form['product_name']
-        category_selection = request.form['category']
-        
-        # Handle category selection
-        if category_selection == 'new':
-            # If user selected "new" but didn't provide a new category name
-            if 'new_category' not in request.form or not request.form['new_category'].strip():
-                # Save form data to repopulate the form
-                form_data = {
-                    'product_title': product_title,
-                    'product_name': product_name,
-                    'category': category_selection,
-                    'product_description': request.form.get('product_description', ''),
-                    'quantity': request.form.get('quantity', ''),
-                    'product_price': "$" +request.form.get('product_price', ''),
-                    'status': request.form.get('status', '')
-                    
-                }
-                show_new_category = True
-                error = "Please provide a name for the new category"
-                return render_template('seller_addproducts.html', 
-                                      show_new_category=show_new_category, 
-                                      form_data=form_data,
-                                      error=error)
-            
-            category = request.form['new_category']
-        else:
-            category = category_selection
-            
-        product_description = request.form['product_description']
-        quantity = request.form['quantity']
-        product_price = "$" + request.form['product_price']
-        status = request.form['status']
-        
-        # Connect to database
-        connection = sql.connect('database.db')
-        cursor = connection.cursor()
-        
-        # Generate a unique listing ID
-        listing_id = generate_unique_id(cursor, "Product_listings", "Listing_ID", 10)
-        
-        # Insert into Product_listings table
-        cursor.execute('''
-            INSERT INTO Product_listings (
-                Listing_ID, Seller_Email, Category, Product_Title, 
-                Product_Name, Product_Description, Quantity, Product_Price, Status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            listing_id, seller_email, category, product_title,
-            product_name, product_description, quantity, product_price, status
-        ))
-        
-        connection.commit()
-        connection.close()
-        
-        # Redirect to the seller products page
-        return redirect(url_for('seller_products'))
-    
-    # If it's a GET request, just render the form or if we need to show the form again due to validation errors
-    return render_template('seller_addproducts.html', 
-                          show_new_category=show_new_category, 
-                          form_data=form_data,
-                          error=error)
+   if 'email' not in session:
+       return redirect(url_for('login'))
+  
+   # Initialize variables for template
+   show_new_category = False
+   form_data = {}
+   error = None
+  
+   # Get categories for dropdown
+   categories = get_categories()
+  
+   if request.method == 'POST':
+       # Get the seller's email from the session
+       seller_email = session['email']
+      
+       # Get form data
+       product_title = request.form['product_title']
+       product_name = request.form['product_name']
+       category_selection = request.form['category']
+      
+       # Handle category selection
+       if category_selection == 'new':
+           # If user selected "new" but didn't provide a new category name
+           if 'new_category' not in request.form or not request.form['new_category'].strip():
+               # Save form data to repopulate the form
+               form_data = {
+                   'product_title': product_title,
+                   'product_name': product_name,
+                   'category': category_selection,
+                   'product_description': request.form.get('product_description', ''),
+                   'quantity': request.form.get('quantity', ''),
+                   'product_price': "$" +request.form.get('product_price', ''),
+                   'status': request.form.get('status', '')
+                  
+               }
+               show_new_category = True
+               error = "Please provide a name for the new category"
+               return render_template('seller_addproducts.html',
+                                     show_new_category=show_new_category,
+                                     form_data=form_data,
+                                     categories=categories,
+                                     error=error)
+          
+           category = request.form['new_category']
+       else:
+           category = category_selection
+          
+       product_description = request.form['product_description']
+       quantity = request.form['quantity']
+       product_price = "$" + request.form['product_price']
+       status = request.form['status']
+      
+       # Connect to database
+       connection = sql.connect('database.db')
+       cursor = connection.cursor()
+      
+       # Generate a unique listing ID
+       listing_id = generate_unique_id(cursor, "Product_listings", "Listing_ID", 10)
+      
+       # Insert into Product_listings table
+       cursor.execute('''
+           INSERT INTO Product_listings (
+               Listing_ID, Seller_Email, Category, Product_Title,
+               Product_Name, Product_Description, Quantity, Product_Price, Status
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ''', (
+           listing_id, seller_email, category, product_title,
+           product_name, product_description, quantity, product_price, status
+       ))
+      
+       connection.commit()
+       connection.close()
+      
+       # Redirect to the seller products page
+       return redirect(url_for('seller_products'))
+  
+   # If it's a GET request, just render the form
+   # Or if we need to show the form again due to validation errors
+   return render_template('seller_addproducts.html',
+                         show_new_category=show_new_category,
+                         form_data=form_data,
+                         categories=categories,
+                         error=error)
+
 
 
 @app.route('/seller_orders')
@@ -751,5 +783,44 @@ def order_confirmation():
 def creditcard():
 
     return render_template('credit_card.html')
+
+@app.route('/add_category', methods=['GET', 'POST'])
+def add_category():
+    if 'email' not in session or session['role'] != "Sellers":
+        return redirect(url_for('login'))
+    
+    error = None
+    success = None
+    
+    if request.method == 'POST':
+        new_category = request.form.get('new_category')
+        parent_category = request.form.get('parent_category', 'Root')
+        
+        if not new_category:
+            error = "Please enter a category name"
+        else:
+            # Store the category request in a pending categories table
+            connection = sql.connect('database.db')
+            cursor = connection.cursor()
+            
+            # Check if category already exists
+            cursor.execute('SELECT 1 FROM Categories WHERE category_name = ?', (new_category,))
+            if cursor.fetchone():
+                error = "This category already exists"
+            else:
+                # Insert into pending categories
+
+                success = "Your category has been submitted for approval"
+            
+            connection.close()
+    
+    # Get existing categories for parent selection
+    categories = get_categories()
+    
+    return render_template('add_category.html', 
+                          categories=categories,
+                          error=error,
+                          success=success)
+
 if __name__ == "__main__":
     app.run(debug=True)
