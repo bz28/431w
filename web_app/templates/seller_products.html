@@ -137,13 +137,6 @@
             background-color: #0056b3;
         }
 
-        footer {
-            background-color: #343a40;
-            color: white;
-            padding: 10px;
-            margin-top: 60px;
-            width: 100%;
-        }
 
         .rating {
             display: flex;
@@ -198,7 +191,6 @@
                 <p>Status: {{ 'Out of Stock' if product[8] == 2 else 'Available' if product[8] == 1 else 'Inactive' if
                     product[8] == 0 else 'Unknown' }}</p>
 
-                <!-- Display rating -->
                 <div class="rating">
                     <div class="stars">
                         {% set rating = product[-2]|float %}
@@ -224,11 +216,6 @@
             {% endif %}
         </div>
     </section>
-
-    <footer>
-        &copy; 2025 NittanyBusiness. All rights reserved.
-    </footer>
-
 
 </body>
 
