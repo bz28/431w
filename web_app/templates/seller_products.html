@@ -94,15 +94,26 @@
             margin: 8px 0;
         }
 
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-group form {
+            margin: 0;
+        }
+
         .action-button {
             background-color: #007bff;
             color: white;
             border: none;
             padding: 6px 12px;
-            margin: 5px 5px 5px 0;
             cursor: pointer;
             border-radius: 4px;
             font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .action-button:hover {
@@ -205,10 +216,17 @@
                 </div>
 
                 <p>Description: {{ product[5] }}</p>
-                <button><a href="{{ url_for('product_reviews', listing_id=product[0]) }}" class="action-button">Reviews
-                    </a></button>
-                <button><a href="{{ url_for('delete_product', listing_id=product[0]) }}"
-                        class="action-button">Delete</a></button>
+                <div class="button-group">
+                    <form action="{{ url_for('product_reviews', listing_id=product[1]) }}" method="get"
+                        style="display: inline;">
+                        <button type="submit" class="action-button">Reviews</button>
+                    </form>
+
+                    <form action="{{ url_for('delete_product', listing_id=product[1]) }}" method="post"
+                        style="display: inline;">
+                        <button type="submit" class="action-button">Delete</button>
+                    </form>
+                </div>
             </div>
             {% endfor %}
             {% else %}

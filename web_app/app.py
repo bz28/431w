@@ -659,7 +659,7 @@ def update_order_status(order_id):
     connection.close()
     
     return redirect(url_for('seller_orders'))
-@app.route('/delete_product/<listing_id>', methods=['GET'])
+@app.route('/delete_product/<listing_id>', methods=['GET', 'POST'])
 def delete_product(listing_id):
     if 'email' not in session or session['role'] != "Sellers":
         return redirect(url_for('login'))
