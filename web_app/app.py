@@ -227,7 +227,6 @@ def productreviews():
     Quantity = cursor.fetchall()
 
     # Get Reviews
-    # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,
     cursor.execute('SELECT R.order_id, R.rate, R.review_desc FROM Reviews R JOIN Orders O ON R.order_id = O.order_id WHERE O.listing_id = ?', (session['listing_id'],))
     reviews = cursor.fetchall()
     session['business_name'] = business_name[0][0]
@@ -255,7 +254,7 @@ def buy_now():
     connection = sql.connect('database.db')
     cursor = connection.cursor()
 
-    # First, fetch available quantity
+    # Get available quantity
     cursor.execute('SELECT quantity FROM Product_Listings WHERE listing_id = ?', (listing_id,))
     result = cursor.fetchone()
     available_quantity = result[0] if result else 0
@@ -324,7 +323,7 @@ def buy_now():
         connection.close()
         return redirect(url_for('buyer_placeorder', listing_id=listing_id))
 
-    # Prepopulate credit card if it exists
+    # Populate credit card if in database
     cursor.execute('''
         SELECT credit_card_num, card_type, expire_month, expire_year, security_code
         FROM Credit_Cards
