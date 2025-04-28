@@ -315,8 +315,7 @@ def leave_review():
         rating = request.form['rating']
         comment = request.form['comment']
         # Insert review into database
-        cursor.execute('INSERT INTO Reviews (order_id, rate, review_desc) VALUES (?, ?, ?)', 
-                      (order_id, rating, comment))
+        cursor.execute('INSERT INTO Reviews (order_id, rate, review_desc) VALUES (?, ?, ?)', (order_id, rating, comment))
         connection.commit()
         connection.close()
         return redirect(url_for('buyerhome'))
@@ -639,8 +638,24 @@ def update_order_status(order_id):
 def order_confirmation():
     return render_template('credit_card.html')
 
-@app.route('/creditcard', methods = ['POST'])
+@app.route('/creditcard', methods=['GET', 'POST'])
 def creditcard():
+    email = session['email']
+    if request.method == 'POST':
+        credit_card_number = request.form.get('Cnum')
+        card_type = request.form.get('Ctype')
+        expiration_month = request.form.get('Cexpm')
+        expiration_year = request.form.get('Cexpy')
+        security_code = request.form.get('Ccode')
+
+        connection = sql.connect('database.db')
+        cursor = connection.cursor()
+        cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_number, card_type, expiration_month, expiration_year, security_code, email))
+        connection.commit()
+        connection.close()
+
+
+
     return render_template('credit_card.html')
 if __name__ == "__main__":
     app.run(debug=True)

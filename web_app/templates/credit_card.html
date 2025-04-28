@@ -78,6 +78,14 @@
         button:hover {
             background-color: #218838;
         }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 auto;
+            max-width: 500px;
+        }
     </style>
 </head>
 <body>
@@ -90,17 +98,13 @@
     </header>
 
     <h2>Enter your information</h2>
-        <form>
-            <label for="Cnum">Credit Card Number:</label>
-            <input type="text" id="Cnum" name="Cnum"><br>
-            <label for="Ctype">Card Type:</label>
-            <input type="text" id="Ctype" name="Ctype"><br>
-            <label for="Cexpm">Expiration month:</label>
-            <input type="text" id="Cexpm" name="Cexpm"><br>
-            <label for="Cexpy"> Expiration year:</label>
-            <input type="text" id="Cexpy" name="Cexpy"><br>
-            <label for="Ccode">Security Code:</label>
-            <input type="text" id="Ccode" name="Ccode">
+        <form action="{{ url_for('creditcard') }}" method="post">
+            <input type="text" name="Cnum" placeholder="Credit Card Number" required>
+            <input type="text" name="Ctype" placeholder="Card Type" required>
+            <input type="text" name="Cexpm" placeholder="Expiration Month" required>
+            <input type="text" name="Cexpy" placeholder="Expiration Year" required>
+            <input type="text" name="Ccode" placeholder="Security Code" required>
+            <button type="submit">Save Information for Future Payments</button>
         </form>
         <form action="{{ url_for('buy_now') }}" method="post">
             <button type="submit">Purchase</button>
