@@ -43,7 +43,7 @@
             padding: 20px;
         }
 
-        h1, h2 {
+        h1{
             color: #333;
         }
 
@@ -76,6 +76,12 @@
             margin: 8px 0;
             box-sizing: border-box;
         }
+
+        .info-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +99,13 @@
         <input type="text" name="Ctype" placeholder="Card Type" required value="{{ saved_card[1] if saved_card else '' }}">
         <input type="text" name="Cexpm" placeholder="Expiration Month" required value="{{ saved_card[2] if saved_card else '' }}">
         <input type="text" name="Cexpy" placeholder="Expiration Year" required value="{{ saved_card[3] if saved_card else '' }}">
-        <input type="text" name="Ccode" placeholder="Security Code" required value="{{ saved_card[4] if saved_card else '' }}">
+        <input type="password" name="Ccode" placeholder="Security Code" required value="{{ saved_card[4] if saved_card else '' }}">
+
+        <div class="info-text">
+            Available Quantity: {{ available_quantity }}
+        </div>
+        <input type="number" name="quantity" placeholder="Enter quantity to purchase" min="1" max="{{ available_quantity }}" required>
+
         <div>
             <input type="checkbox" name="save_card" id="save_card">
             <label for="save_card">Save information for future payments</label>

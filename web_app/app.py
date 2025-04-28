@@ -255,6 +255,11 @@ def buy_now():
     connection = sql.connect('database.db')
     cursor = connection.cursor()
 
+    # First, fetch available quantity
+    cursor.execute('SELECT quantity FROM Product_Listings WHERE listing_id = ?', (listing_id,))
+    result = cursor.fetchone()
+    available_quantity = result[0] if result else 0
+
     if request.method == 'POST':
         credit_card_num = request.form.get('Cnum')
         card_type = request.form.get('Ctype')
@@ -262,6 +267,7 @@ def buy_now():
         expire_year = request.form.get('Cexpy')
         security_code = request.form.get('Ccode')
         save_card = request.form.get('save_card')
+        quantity_purchased = int(request.form.get('quantity', 1))  # <--- NEW: get quantity input
 
         if save_card:
             cursor.execute('''
@@ -277,13 +283,12 @@ def buy_now():
 
         if result:
             seller_email, product_price, current_quantity = result
-            quantity_purchased = 1
 
-            if current_quantity is None or current_quantity <= 0:
+            if current_quantity is None or current_quantity < quantity_purchased:
                 connection.close()
                 return render_template('out_of_stock.html')
 
-            payment = int(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
+            payment = float(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
             order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 3)
 
             cursor.execute('''
@@ -291,7 +296,7 @@ def buy_now():
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity_purchased, payment))
 
-            # 👇 Update Quantity and Status properly
+            # Update quantity and status
             new_quantity = current_quantity - quantity_purchased
 
             if new_quantity == 0:
@@ -310,7 +315,6 @@ def buy_now():
             connection.commit()
 
         connection.close()
-
         return redirect(url_for('buyer_placeorder', listing_id=listing_id))
 
     # Prepopulate credit card if it exists
@@ -322,8 +326,7 @@ def buy_now():
     saved_card = cursor.fetchone()
 
     connection.close()
-    return render_template('credit_card.html', saved_card=saved_card)
-
+    return render_template('credit_card.html', saved_card=saved_card, available_quantity=available_quantity)
 
 @app.route('/buyer_placeorder')
 def buyer_placeorder():
