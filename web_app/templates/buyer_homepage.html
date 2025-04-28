@@ -192,24 +192,24 @@
         <table>
             <thead>
                 <tr>
-                    <th>Seller Email</th>
-                    <th>Listing ID</th>
                     <th>Category</th>
                     <th>Product Title</th>
                     <th>Product Name</th>
                     <th>Product Description</th>
                     <th>Quantity</th>
                     <th>Product Price</th>
-                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in products %}
                 <tr>
-                    {% for value in row %}
-                    <td>{{ value }}</td>
-                    {% endfor %}
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>{{ row[6] }}</td>
+                    <td>{{ row[7] }}</td>
                     <td>
                         <form action="{{ url_for('buyerhome') }}" method="post">
                             <input type="hidden" name="listing_id" value="{{ row[1] }}">
