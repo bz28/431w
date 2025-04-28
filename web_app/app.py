@@ -490,8 +490,6 @@ def seller_products():
     email = session['email']
     connection = sql.connect('database.db')
     cursor = connection.cursor()
-    
-    # Assuming your table is called Product_listings
     query = '''
     SELECT 
         p.*,
@@ -533,11 +531,7 @@ def seller_products():
     products_without_reviews = cursor.fetchall()
     
     # Combine the results
-    products = products_with_reviews + products_without_reviews
-    
-    # Get column names for reference
-   
-    
+    products = products_with_reviews + products_without_reviews    
     connection.close()
     return render_template('seller_products.html', products=products)
 
@@ -615,8 +609,7 @@ def add_product():
         # Redirect to the seller products page
         return redirect(url_for('seller_products'))
     
-    # If it's a GET request, just render the form
-    # Or if we need to show the form again due to validation errors
+    # If it's a GET request, just render the form or if we need to show the form again due to validation errors
     return render_template('seller_addproducts.html', 
                           show_new_category=show_new_category, 
                           form_data=form_data,
@@ -650,7 +643,7 @@ def update_order_status(order_id):
     connection = sql.connect('database.db')
     cursor = connection.cursor()
     
-    # First, get the payment amount and listing_id from the order
+    # Get the payment amount and listing_id from the order
     cursor.execute('SELECT Payment, Listing_ID FROM Orders WHERE Order_ID = ? AND seller_email = ?', 
                   (order_id, seller_email))
     order_info = cursor.fetchone()
@@ -670,7 +663,7 @@ def update_order_status(order_id):
             WHERE Listing_ID = ?
         ''', (listing_id,))
         
-        # Finally, delete the order
+        # Delete the order
         cursor.execute('DELETE FROM Orders WHERE Order_ID = ? AND seller_email = ?', 
                       (order_id, seller_email))
         
@@ -702,8 +695,6 @@ def seller_products_reviews(listing_id):
     email = session['email']
     connection = sql.connect('database.db')
     cursor = connection.cursor()
-    
-    # Assuming your table is called Product_listings
     query = '''
     SELECT 
         r.Review_Desc,
