@@ -291,29 +291,39 @@ def buy_now():
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity_purchased, payment))
 
+            # 👇 Update Quantity and Status properly
             new_quantity = current_quantity - quantity_purchased
-            cursor.execute('''
-                UPDATE Product_Listings
-                SET quantity = ?
-                WHERE listing_id = ?
-            ''', (new_quantity, listing_id))
+
+            if new_quantity == 0:
+                cursor.execute('''
+                    UPDATE Product_Listings
+                    SET quantity = ?, Status = 2
+                    WHERE listing_id = ?
+                ''', (new_quantity, listing_id))
+            else:
+                cursor.execute('''
+                    UPDATE Product_Listings
+                    SET quantity = ?
+                    WHERE listing_id = ?
+                ''', (new_quantity, listing_id))
 
             connection.commit()
 
         connection.close()
 
         return redirect(url_for('buyer_placeorder', listing_id=listing_id))
-    
-    
+
+    # Prepopulate credit card if it exists
     cursor.execute('''
         SELECT credit_card_num, card_type, expire_month, expire_year, security_code
-        FROM Credit_cards
+        FROM Credit_Cards
         WHERE Owner_email = ?
     ''', (buyer_email,))
     saved_card = cursor.fetchone()
 
     connection.close()
     return render_template('credit_card.html', saved_card=saved_card)
+
 
 @app.route('/buyer_placeorder')
 def buyer_placeorder():
