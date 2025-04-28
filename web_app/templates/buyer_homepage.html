@@ -12,7 +12,6 @@
             text-align: center;
             background-color: #f8f9fa;
         }
-
         header {
             background-color: #00448d;
             color: white;
@@ -20,7 +19,6 @@
             font-size: 24px;
             position: relative;
         }
-
         .top-right-links {
             position: absolute;
             right: 20px;
@@ -28,46 +26,32 @@
             transform: translateY(-50%);
             font-size: 16px;
         }
-
         .top-right-links a {
             color: white;
             text-decoration: none;
             margin-left: 15px;
         }
-
         .top-right-links a:hover {
             text-decoration: underline;
         }
-
         section {
             padding: 20px;
         }
-
         .bar {
             margin: 20px auto;
             width: 80%;
         }
-
-        .bar input[type="text"] {
+        .bar input[type="text"],
+        .bar input[type="number"] {
             width: 60%;
             padding: 10px;
             font-size: 16px;
         }
-
-        .links-section a {
-            display: inline-block;
-            margin: 10px;
-            text-decoration: none;
-            color: #00448d;
-            font-weight: bold;
-        }
-
         .dropdown {
             display: inline-block;
             position: relative;
             margin: 10px;
         }
-
         .dropdown-btn {
             background-color: #00448d;
             color: white;
@@ -77,34 +61,53 @@
             font-weight: bold;
             border-radius: 4px;
         }
-
         .dropdown-content {
             display: none;
             position: absolute;
             background-color: #f9f9f9;
             min-width: 200px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
             z-index: 1;
             text-align: left;
         }
-
         .dropdown:hover .dropdown-content {
             display: block;
         }
-
-
+        .category {
+            position: relative;
+        }
         .category-item {
             padding: 12px 16px;
             display: block;
             cursor: pointer;
             color: #00448d;
             font-weight: bold;
+            text-decoration: none;
         }
-
         .category-item:hover {
             background-color: #ddd;
         }
-
+        .toggle-subcat {
+            display: none;
+        }
+        .subcategory {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            border: 1px solid #ccc;
+            z-index: 1;
+        }
+        /* Hover shows subcategories */
+        .category:hover > .subcategory {
+            display: block;
+        }
+        /* Click (checkbox checked) keeps subcategories open */
+        .toggle-subcat:checked + .category-item + .subcategory {
+            display: block;
+        }
         table {
             border-collapse: collapse;
             width: 100%;
@@ -121,7 +124,6 @@
         h1 {
             color: #333;
         }
-
     </style>
 </head>
 <body>
@@ -133,6 +135,7 @@
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>
     </header>
+
     <section>
         <h2>Welcome to NittanyBusiness!</h2>
 
@@ -149,16 +152,40 @@
             <button type="submit">Search</button>
         </form>
 
-
-
-
         <div class="dropdown">
             <button class="dropdown-btn">Categories</button>
             <div class="dropdown-content">
-                {% for category in root_categories %}
+                {% for category in categories['Root'] %}
                     <div class="category">
-                        <span class="category-item">{{ category[0] }}</span>
-                        
+                        <input type="checkbox" class="toggle-subcat" id="toggle-{{ category }}">
+                        <label class="category-item" for="toggle-{{ category }}">{{ category }}</label>
+                        {% if categories.get(category) %}
+                            <div class="subcategory">
+                                {% for subcat in categories[category] %}
+                                    <div class="category">
+                                        <input type="checkbox" class="toggle-subcat" id="toggle-{{ subcat }}">
+                                        <label class="category-item" for="toggle-{{ subcat }}">{{ subcat }}</label>
+                                        {% if categories.get(subcat) %}
+                                            <div class="subcategory">
+                                                {% for subsubcat in categories[subcat] %}
+                                                    {% if categories.get(subsubcat) %}
+                                                        <div class="category">
+                                                            <input type="checkbox" class="toggle-subcat" id="toggle-{{ subsubcat }}">
+                                                            <label class="category-item" for="toggle-{{ subsubcat }}">{{ subsubcat }}</label>
+                                                            <div class="subcategory">
+                                                                <!-- You could go deeper here if needed -->
+                                                            </div>
+                                                        </div>
+                                                    {% else %}
+                                                        <a class="category-item" href="{{ url_for('buyerhome', selected_category=subsubcat) }}">{{ subsubcat }}</a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
@@ -171,6 +198,7 @@
                     {% for column in columns %}
                     <th>{{ column }}</th>
                     {% endfor %}
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -187,12 +215,10 @@
                             </button>
                         </form>
                     </td>
-                        
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
 
     </section>
 </body>

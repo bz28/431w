@@ -41,7 +41,7 @@
 <body>
 
     <h2>Your Order History</h2>
-    {% if orders %}
+    {% if orderswithout or orderswith %}
     <table>
         <tr>
             <th>Order ID</th>
@@ -53,7 +53,7 @@
             <th>Payment</th>
             <th>Review</th>
         </tr>
-        {% for order in orders %}
+        {% for order in orderswithout %}
         <tr>
             <td>{{ order['order_id'] }}</td>
             <td>{{ order['seller_email'] }}</td>
@@ -65,9 +65,22 @@
             <td>
                 <form action="{{ url_for('leave_review') }}" method="GET">
                     <input type="hidden" name="listing_id" value="{{ order['listing_id'] }}">
+                    <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
                     <button type="submit" class="review-button">Leave a Review</button>
                 </form>
             </td>
+        </tr>
+        {% endfor %}
+        {% for order in orderswith %}
+        <tr>
+            <td>{{ order['order_id'] }}</td>
+            <td>{{ order['seller_email'] }}</td>
+            <td>{{ order['listing_id'] }}</td>
+            <td>{{ order['buyer_email'] }}</td>
+            <td>{{ order['date'] }}</td>
+            <td>{{ order['quantity'] }}</td>
+            <td>${{ order['payment'] }}</td>
+            <td class="review-text">Left a review</td>
         </tr>
         {% endfor %}
     </table>

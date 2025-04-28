@@ -150,30 +150,37 @@ def helpdeskregistration():
 def sellerhome():
     return render_template('seller_homepage.html')
 
-
 @app.route('/buyerhome', methods=['GET', 'POST'])
 def buyerhome():
     query = request.args.get('query', '').strip()
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
+    open_path = request.args.get('open_path')  # NEW - track expanded category
+    selected_category = request.args.get('selected_category')  # NEW - filter category
 
     connection = sql.connect('database.db')
     cursor = connection.cursor()
 
-    # Get categories
-    cursor.execute("SELECT category_name FROM Categories WHERE parent_category = 'Root'")
-    root_categories = cursor.fetchall()
-    cursor.execute("SELECT C2.category_name FROM Categories C, Categories C2 WHERE C.parent_category = 'Root' and C.category_name = C2.parent_category")
-    subcategories = cursor.fetchall()
-    cursor.execute("SELECT C3.category_name FROM Categories C1, Categories C2, Categories C3 WHERE C1.parent_category = 'Root' AND C1.category_name = C2.parent_category AND C2.category_name = C3.parent_category GROUP BY C3.parent_category")
-    itemscategory = cursor.fetchall()
+    cursor.execute("SELECT parent_category, category_name FROM Categories")
+    category_rows = cursor.fetchall()
 
-    # Build query and parameters
+    from collections import defaultdict
+    categories = defaultdict(list)
+    for parent, child in category_rows:
+        parent = parent.strip() if parent else 'Root'
+        child = child.strip()
+        categories[parent].append(child)
+
     sql_query = '''
         SELECT * FROM Product_Listings
-        WHERE (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
+        WHERE Status = 1
+        AND (Product_Name LIKE ? OR Product_Description LIKE ? OR Category LIKE ? OR Seller_Email LIKE ?)
     '''
     params = [f'%{query}%'] * 4 if query else ['%%'] * 4
+
+    if selected_category:
+        sql_query += " AND Category = ?"
+        params.append(selected_category)
 
     if min_price:
         sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) >= ?"
@@ -181,24 +188,25 @@ def buyerhome():
     if max_price:
         sql_query += " AND CAST(REPLACE(REPLACE(REPLACE(Product_Price, '$', ''), ',', ''), ' ', '') AS REAL) <= ?"
         params.append(float(max_price))
+
     cursor.execute(sql_query, params)
     products = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
 
     connection.close()
-    
-    if request.method == 'POST': # Redirect user based on role selection
+
+    if request.method == 'POST':
         session['listing_id'] = request.form.get('listing_id')
         return redirect(url_for('productreviews'))
 
     return render_template(
         'buyer_homepage.html',
-        root_categories=root_categories,
-        subcategories=subcategories,
-        itemscategory=itemscategory,
         products=products,
-        columns=columns
+        columns=columns,
+        categories=dict(categories),
+        open_path=open_path,
     )
+
 @app.route('/productreviews', methods=['GET', 'POST'])
 def productreviews():
     connection = sql.connect('database.db')
@@ -215,6 +223,8 @@ def productreviews():
     product_price = cursor.fetchall()
     cursor.execute('SELECT product_title FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
     product_title = cursor.fetchall()
+    cursor.execute('SELECT Quantity FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    Quantity = cursor.fetchall()
 
     # Get Reviews
     # Order_ID,Seller_Email,Listing_ID,Buyer_Email,Date,Quantity,
@@ -228,9 +238,10 @@ def productreviews():
     session['product_price'] = product_price[0][0]
     session['product_title'] = product_title[0][0]
     session['reviews'] = reviews
+    session['Quantity'] = Quantity[0][0]
     connection.commit()
     connection.close()
-    return render_template('product_reviews.html', reviews=session['reviews'], business_name=session['business_name'], rating=session['rating'], product_price=session['product_price'], product_title=session['product_title'])
+    return render_template('product_reviews.html', reviews=session['reviews'], business_name=session['business_name'], rating=session['rating'], product_price=session['product_price'], product_title=session['product_title'], Quantity = session['Quantity'])
 
 @app.route('/buy_now', methods=['GET', 'POST'])
 def buy_now():
@@ -240,51 +251,94 @@ def buy_now():
     buyer_email = session['email']
     listing_id = session['listing_id']
     order_date = datetime.now().strftime('%Y/%m/%d')
+
+    #used for credit card where it takes form and if save card is selected puts it into the database
+    if request.method == 'POST':
+        credit_card_num = request.form.get('Cnum')
+        card_type = request.form.get('Ctype')
+        expire_month = request.form.get('Cexpm')
+        expire_year = request.form.get('Cexpy')
+        security_code = request.form.get('Ccode')
+        save_card = request.form.get('save_card')
+
+        if save_card != None:
+            connection = sql.connect('database.db')
+            cursor = connection.cursor()
+            cursor.execute('INSERT INTO Credit_cards (credit_card_num,card_type,expire_month,expire_year,security_code,Owner_email) VALUES (?, ?, ?, ?, ?, ?)', (credit_card_num, card_type, expire_month, expire_year, security_code, buyer_email))
+            connection.commit()
+            connection.close()
+
     connection = sql.connect('database.db')
     cursor = connection.cursor()
+
+
     # Get product info
-    cursor.execute("SELECT seller_email, product_price FROM Product_Listings WHERE listing_id = ?", (listing_id,))
+    cursor.execute("SELECT seller_email, product_price, quantity FROM Product_Listings WHERE listing_id = ?", (listing_id,))
     result = cursor.fetchone()
+
     if result:
-        seller_email, product_price = result
-        quantity = 1  # Fixed quantity
-        payment = int(product_price.replace('$', '')) * quantity
+        seller_email, product_price, current_quantity = result
+        quantity_purchased = 1  # Fixed quantity
+
+        if current_quantity is None or current_quantity <= 0:
+            connection.close()
+            # Render a special "Out of Stock" page
+            return render_template('out_of_stock.html')
+
+        payment = int(product_price.replace('$', '').replace(',', '').replace(' ', '')) * quantity_purchased
+
         # Generate unique order_id
         order_id = generate_unique_integer_id(cursor, "Orders", "Order_ID", 3)
+
         # Insert into Orders table
         cursor.execute('''
             INSERT INTO Orders (Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity, payment))
+        ''', (order_id, seller_email, listing_id, buyer_email, order_date, quantity_purchased, payment))
+
+        # Update Product quantity (decrease by 1)
+        new_quantity = current_quantity - quantity_purchased
+        cursor.execute('''
+            UPDATE Product_Listings
+            SET quantity = ?
+            WHERE listing_id = ?
+        ''', (new_quantity, listing_id))
+
         connection.commit()
-        connection.close()
+
+    connection.close()
+
     return render_template('buyer_placeorder.html', listing_id=session['listing_id'])
 
 
 @app.route('/leave_review', methods=['GET', 'POST'])
-def leave_review(): #buyers review
-    listing_id = request.args.get('listing_id')
+def leave_review():
 
+    listing_id = request.args.get('listing_id')
+    order_id = request.args.get('order_id')
+    session['listing_id'] = listing_id
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT product_title FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    product_title = cursor.fetchall()
+    cursor.execute('SELECT seller_email FROM Product_Listings WHERE listing_id = ?', (session['listing_id'],))
+    seller_email = cursor.fetchall()
+    session['seller_email'] = seller_email[0][0] 
+    cursor.execute('SELECT business_name FROM Sellers WHERE email = ?', (session['seller_email'],))
+    business_name = cursor.fetchall()
+
+    
     if request.method == 'POST':
         rating = request.form['rating']
         comment = request.form['comment']
-        reviewer_email = session.get('email')  # Assumes you're using session auth
-
-        connection = sql.connect('database.db')
-        cursor = connection.cursor()
-
-        # You might want to generate a unique review ID or use autoincrement
-        cursor.execute('''
-            INSERT INTO Reviews (Listing_ID, Reviewer_Email, Rating, Comment)
-            VALUES (?, ?, ?, ?)
-        ''', (listing_id, reviewer_email, rating, comment))
-
+        # Insert review into database
+        cursor.execute('INSERT INTO Reviews (order_id, rate, review_desc) VALUES (?, ?, ?)', (order_id, rating, comment))
         connection.commit()
         connection.close()
-
         return redirect(url_for('buyerhome'))
-
-    return render_template('leave_review.html', listing_id=listing_id)
+    
+    connection.close()
+    return render_template('leave_review.html', product_title=product_title[0][0], listing_id=listing_id, order_id=order_id, business_name = business_name[0][0])
 
 @app.route('/sellerreviews', methods=['GET', 'POST'])
 def sellerreviews():
@@ -312,11 +366,23 @@ def view_orders():
     cursor.execute('SELECT * FROM Orders WHERE Buyer_Email = ?', (user_email,))
     orders = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
+    
+
+    orderswith= []
+    orderswithout= []
+    for order in orders:
+        order_list = dict(zip(columns, order))
+        cursor.execute('SELECT * FROM Reviews WHERE Order_ID = ?', (order_list['order_id'],))
+        review_exists = cursor.fetchone() != None
+        
+        if review_exists:
+            orderswith.append(order_list)
+        else:
+            orderswithout.append(order_list)
+
     connection.close()
 
-    order_list = [dict(zip(columns, order)) for order in orders]
-
-    return render_template('buyer_orders.html', orders=order_list)
+    return render_template('buyer_orders.html', orderswith=orderswith, orderswithout=orderswithout)
 
 @app.route('/helpdeskhome')
 def helpdeskhome():
@@ -616,8 +682,9 @@ def product_reviews(listing_id):
 def order_confirmation():
     return render_template('credit_card.html')
 
-@app.route('/creditcard', methods = ['POST'])
+@app.route('/creditcard', methods=['GET', 'POST'])
 def creditcard():
+
     return render_template('credit_card.html')
 if __name__ == "__main__":
     app.run(debug=True)

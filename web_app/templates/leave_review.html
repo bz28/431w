@@ -49,8 +49,17 @@
 
     <h2>Leave a Review</h2>
     <form method="POST">
+
+        <div class="product-name">
+            {% if product_title %}
+                {% if business_name %}
+                    Reviewing: {{ product_title }} from {{business_name}}
+                {% endif %}
+            {% endif %}
+        </div>
+
         <input type="hidden" name="listing_id" value="{{ listing_id }}">
-        
+
         <label for="rating">Rating (1-5):</label>
         <input type="number" name="rating" min="1" max="5" required>
         
